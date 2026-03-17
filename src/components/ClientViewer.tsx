@@ -387,28 +387,39 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
           <p className="text-xs text-zinc-400 font-medium">Plan existiert evtl. noch nicht oder Login-Daten sind abgelaufen.</p>
           <button 
             onClick={() => router.push('/')}
-            className="mt-6 px-6 py-2.5 bg-black dark:bg-white text-white dark:text-black text-xs font-black rounded-xl uppercase tracking-widest active:scale-95 transition-all"
+            className="mt-8 px-8 py-3 bg-black dark:bg-white text-white dark:text-black text-xs font-black rounded-xl uppercase tracking-widest active:scale-95 transition-all shadow-lg"
           >
             Aktualisieren
           </button>
+        </div>
+      ) : data?.isWeekend || (data && data.entries.length === 0 && !data.dayNotes) ? (
+        <div className="bg-zinc-50 dark:bg-zinc-900/50 border-2 border-zinc-100 dark:border-zinc-900 p-12 rounded-3xl text-center animate-in fade-in duration-500">
+          <div className="space-y-4">
+            <div className="bg-zinc-100 dark:bg-zinc-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+              {data.isWeekend ? <Calendar className="w-8 h-8 text-zinc-400" /> : <CheckCircle2 className="w-8 h-8 text-zinc-400" />}
+            </div>
+            <p className="text-xl font-black text-black dark:text-white uppercase tracking-tight">
+              {data.isWeekend ? 'Wochenende' : 'Keine Vertretungen'}
+            </p>
+            <p className="text-sm text-zinc-500 font-medium">
+              {data.isWeekend ? 'Genieß die freie Zeit! Es ist kein Plan verfügbar.' : 'Für heute liegen keine besonderen Änderungen vor.'}
+            </p>
+            <button 
+              onClick={() => router.push('/')}
+              className="mt-8 px-8 py-3 bg-black dark:bg-white text-white dark:text-black text-xs font-black rounded-xl uppercase tracking-widest active:scale-95 transition-all shadow-lg mx-auto"
+            >
+              Aktualisieren
+            </button>
+          </div>
         </div>
       ) : data ? (
         <div className="overflow-hidden rounded-[2rem] bg-white dark:bg-black shadow-2xl shadow-black/[0.05] border-2 border-zinc-100 dark:border-zinc-900">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y-2 divide-zinc-50 dark:divide-zinc-900">
-              <thead className="bg-zinc-50/50 dark:bg-zinc-900/50">
-                <tr>
-                  {['Std.', 'Klasse', 'Fach', 'Lehrer', 'Raum', 'Info'].map(h => (
-                    <th key={h} className="px-8 py-5 text-left text-[9px] font-black uppercase tracking-[0.3em] text-zinc-400 dark:text-zinc-600 italic">
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
               <tbody className="divide-y-2 divide-zinc-50 dark:divide-zinc-900 bg-white dark:bg-black">
                 {filteredEntries.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-8 py-24 text-center">
+                    <td colSpan={5} className="px-8 py-24 text-center">
                       <div className="flex flex-col items-center gap-3">
                         <CheckCircle2 className="w-8 h-8 text-zinc-100 dark:text-zinc-900" />
                         <p className="text-[11px] font-black text-zinc-300 dark:text-zinc-700 uppercase tracking-widest">Keine besonderen Vorkommnisse</p>
@@ -418,12 +429,11 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
                 ) : (
                   filteredEntries.map((e, i) => (
                     <tr key={i} className="border-b border-zinc-50 dark:border-zinc-900/50 last:border-0">
-                      <td className="px-8 py-6 text-sm font-black text-black dark:text-white italic">{e.hour}</td>
-                      <td className="px-8 py-6 text-xs text-zinc-400 dark:text-zinc-600 font-black tracking-widest uppercase">{e.class}</td>
-                      <td className="px-8 py-6 text-base text-black dark:text-white font-black tracking-tighter italic">{e.subject}</td>
-                      <td className="px-8 py-6 text-xs text-zinc-500 dark:text-zinc-400 font-bold">{e.teacher}</td>
-                      <td className="px-8 py-6 text-sm font-black text-black dark:text-white bg-zinc-50/30 dark:bg-zinc-900/30">{e.room}</td>
-                      <td className="px-8 py-6 text-xs text-zinc-400 dark:text-zinc-500 italic font-bold leading-relaxed">{e.info}</td>
+                      <td className="px-3 sm:px-8 py-4 sm:py-6 text-sm font-black text-black dark:text-white italic w-12 text-center">{e.hour}</td>
+                      <td className="px-3 sm:px-8 py-4 sm:py-6 text-base text-black dark:text-white font-black tracking-tighter italic min-w-[100px]">{e.subject}</td>
+                      <td className="px-3 sm:px-8 py-4 sm:py-6 text-xs text-zinc-500 dark:text-zinc-400 font-bold">{e.teacher}</td>
+                      <td className="px-3 sm:px-8 py-4 sm:py-6 text-sm font-black text-black dark:text-white bg-zinc-50/30 dark:bg-zinc-900/30 text-center">{e.room}</td>
+                      <td className="px-3 sm:px-8 py-4 sm:py-6 text-xs text-zinc-400 dark:text-zinc-500 italic font-bold leading-relaxed">{e.info}</td>
                     </tr>
                   ))
                 )}
@@ -432,6 +442,22 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
           </div>
         </div>
       ) : null}
+
+      {data?.dayNotes && data.dayNotes.length > 0 && (
+        <div className="mt-8 bg-amber-50 dark:bg-amber-950/30 border-2 border-amber-100 dark:border-amber-900/50 p-6 rounded-3xl space-y-3 animate-in slide-in-from-bottom duration-500">
+          <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+            <AlertCircle className="w-5 h-5" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Besondere Hinweise</span>
+          </div>
+          <div className="space-y-2">
+            {data.dayNotes.map((note, i) => (
+              <p key={i} className="text-sm font-bold text-amber-900 dark:text-amber-200 leading-relaxed">
+                {note}
+              </p>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

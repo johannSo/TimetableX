@@ -17,13 +17,23 @@ export interface TimetableData {
   availableRooms: string[];
   availableTeachers: string[];
   currentDateStr: string;
+  dayNotes?: string[];
+  isWeekend?: boolean;
+}
+
+function getFallbackDate(dateStr: string): string {
+  const y = parseInt(dateStr.slice(0, 4));
+  const m = parseInt(dateStr.slice(4, 6)) - 1;
+  const d = parseInt(dateStr.slice(6, 8));
+  const date = new Date(y, m, d);
+  return date.toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
 }
 
 function cleanValue(val: any): string {
   if (typeof val !== 'string') {
     val = val?._ || '';
   }
-  if (!val || val === '&nbsp;' || val.trim() === '') {
+  if (!val || val === '&nbsp;' || val.trim() === '' || val === '---') {
     return '---';
   }
   return val.trim();
@@ -60,7 +70,23 @@ export async function fetchStundenplan(
     if (response.status === 401) {
       throw new Error('Ungültiger Benutzername oder Passwort.');
     }
-    throw new Error(`Kein Plan für Schule ${school} am ${targetDateStr} gefunden.`);
+    
+    const y = parseInt(targetDateStr.slice(0, 4));
+    const m = parseInt(targetDateStr.slice(4, 6)) - 1;
+    const d = parseInt(targetDateStr.slice(6, 8));
+    const dayOfWeek = new Date(y, m, d).getDay(); // 0 = Sunday, 6 = Saturday
+    
+    // Return empty data with formatted date instead of error for weekends or missing plans
+    return {
+      title: 'Stundenplan',
+      date: getFallbackDate(targetDateStr),
+      entries: [],
+      availableClasses: [],
+      availableRooms: [],
+      availableTeachers: [],
+      currentDateStr: targetDateStr,
+      isWeekend: dayOfWeek === 0 || dayOfWeek === 6,
+    };
   }
 
   const xml = await response.text();
@@ -69,6 +95,25 @@ export async function fetchStundenplan(
   const kopf = result.WplanVp?.Kopf?.[0] || {};
   const datum = kopf.DatumPlan?.[0] || 'Unbekanntes Datum';
   const zeitstempel = kopf.zeitstempel?.[0] || '';
+
+  // Extract global day notes (ZusatzInfo/ZiZeile and FreieTexte)
+  const dayNotes: string[] = [];
+  
+  // 1. Check ZusatzInfo (ZiZeile array)
+  const zusatzInfoLines = result.WplanVp?.ZusatzInfo?.[0]?.ZiZeile || [];
+  for (const line of zusatzInfoLines) {
+    const text = cleanValue(line);
+    if (text !== '---' && text !== '') dayNotes.push(text);
+  }
+
+  // 2. Check FreieTexte as fallback
+  const freieTexte = result.WplanVp?.FreieTexte?.[0]?.Ft || [];
+  for (const ft of freieTexte) {
+    const text = cleanValue(ft);
+    if (text !== '---' && text !== '' && !dayNotes.includes(text)) {
+      dayNotes.push(text);
+    }
+  }
 
   const entries: TimetableEntry[] = [];
   const classSet = new Set<string>();
@@ -107,5 +152,6 @@ export async function fetchStundenplan(
     availableRooms: Array.from(roomSet).sort(),
     availableTeachers: Array.from(teacherSet).sort(),
     currentDateStr: targetDateStr,
+    dayNotes: dayNotes.length > 0 ? dayNotes : undefined,
   };
 }
