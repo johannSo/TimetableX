@@ -40,6 +40,13 @@ interface Credentials {
   pass: string;
 }
 
+function isCancelledEntry(entry: TimetableEntry): boolean {
+  const combinedText = `${entry.subject} ${entry.info} ${entry.teacher} ${entry.room}`.toLowerCase();
+  return ['ausfall', 'entfall', 'fällt aus', 'faellt aus', 'cancel'].some(keyword =>
+    combinedText.includes(keyword)
+  );
+}
+
 export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
   const router = useRouter();
   
@@ -400,7 +407,7 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
                               {f.mode === 'class' ? <Users className="w-3.5 h-3.5" /> : f.mode === 'room' ? <Home className="w-3.5 h-3.5" /> : <User className="w-3.5 h-3.5" />}
                             </div>
                             <div className="text-center">
-                              <p className={`text-[9px] font-black uppercase tracking-widest mb-0.5 ${isSelected ? 'text-white/60' : 'text-zinc-400'}`}>
+                              <p className={`text-[9px] font-black uppercase tracking-widest mb-0.5 ${isSelected ? 'text-white/60 dark:text-black/60' : 'text-zinc-400'}`}>
                                 {f.mode === 'class' ? 'Klasse' : f.mode === 'room' ? 'Raum' : 'Lehrer'}
                               </p>
                               <p className="text-base font-black tracking-tight leading-none">
@@ -475,15 +482,38 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
                       </td>
                     </tr>
                   ) : (
-                    filteredEntries.map((e, i) => (
-                      <tr key={i} className="border-b border-zinc-50 dark:border-zinc-900/50 last:border-0">
-                        <td className="px-3 sm:px-8 py-4 sm:py-6 text-sm font-black text-black dark:text-white italic w-12 text-center">{e.hour}</td>
-                        <td className="px-3 sm:px-8 py-4 sm:py-6 text-base text-black dark:text-white font-black tracking-tighter italic min-w-[100px]">{e.subject}</td>
-                        <td className="px-3 sm:px-8 py-4 sm:py-6 text-xs text-zinc-500 dark:text-zinc-400 font-bold">{e.teacher}</td>
-                        <td className="px-3 sm:px-8 py-4 sm:py-6 text-sm font-black text-black dark:text-white bg-zinc-50/30 dark:bg-zinc-900/30 text-center">{e.room}</td>
-                        <td className="px-3 sm:px-8 py-4 sm:py-6 text-xs text-zinc-400 dark:text-zinc-500 italic font-bold leading-relaxed">{e.info}</td>
-                      </tr>
-                    ))
+                    filteredEntries.map((e, i) => {
+                      const isCancelled = isCancelledEntry(e);
+
+                      return (
+                        <tr
+                          key={i}
+                          className={`border-b last:border-0 ${
+                            isCancelled
+                              ? 'border-red-200 bg-red-50/90 dark:border-red-950/60 dark:bg-red-950/20'
+                              : 'border-zinc-50 dark:border-zinc-900/50'
+                          }`}
+                        >
+                          <td className={`px-3 sm:px-8 py-4 sm:py-6 text-sm font-black italic w-12 text-center ${
+                            isCancelled ? 'text-red-700 dark:text-red-300' : 'text-black dark:text-white'
+                          }`}>{e.hour}</td>
+                          <td className={`px-3 sm:px-8 py-4 sm:py-6 text-base font-black tracking-tighter italic min-w-[100px] ${
+                            isCancelled ? 'text-red-700 dark:text-red-300' : 'text-black dark:text-white'
+                          }`}>{e.subject}</td>
+                          <td className={`px-3 sm:px-8 py-4 sm:py-6 text-xs font-bold ${
+                            isCancelled ? 'text-red-600 dark:text-red-300/90' : 'text-zinc-500 dark:text-zinc-400'
+                          }`}>{e.teacher}</td>
+                          <td className={`px-3 sm:px-8 py-4 sm:py-6 text-sm font-black text-center ${
+                            isCancelled
+                              ? 'bg-red-100/80 text-red-700 dark:bg-red-950/40 dark:text-red-200'
+                              : 'bg-zinc-50/30 text-black dark:bg-zinc-900/30 dark:text-white'
+                          }`}>{e.room}</td>
+                          <td className={`px-3 sm:px-8 py-4 sm:py-6 text-xs italic font-bold leading-relaxed ${
+                            isCancelled ? 'text-red-600 dark:text-red-300/90' : 'text-zinc-400 dark:text-zinc-500'
+                          }`}>{e.info}</td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>

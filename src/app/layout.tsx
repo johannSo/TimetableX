@@ -21,11 +21,11 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "VPMobil25",
+  title: "TimetableX",
   description: "The better version of VPMobil24",
   appleWebApp: {
     capable: true,
-    title: "VPMobil25",
+    title: "TimetableX",
     statusBarStyle: "black-translucent",
   },
 };

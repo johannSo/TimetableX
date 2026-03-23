@@ -118,19 +118,19 @@ export default function CommandPalette({ isOpen, onClose, onSelect, items }: Com
 
   return (
     <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[12vh] px-4 animate-in fade-in duration-200">
-      <div className="fixed inset-0 bg-zinc-950/20 dark:bg-black/60 backdrop-blur-[2px]" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/30 dark:bg-black/70 backdrop-blur-[2px]" onClick={onClose} />
       
       <div 
-        className="w-full max-w-2xl bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl rounded-2xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] border border-zinc-200/50 dark:border-zinc-800/50 overflow-hidden animate-in zoom-in-95 slide-in-from-top-4 duration-300 relative"
+        className="w-full max-w-2xl bg-white/95 dark:bg-black/90 backdrop-blur-2xl rounded-2xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.35)] border border-zinc-200 dark:border-zinc-800 overflow-hidden animate-in zoom-in-95 slide-in-from-top-4 duration-300 relative"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center px-6 py-5 border-b border-zinc-200/50 dark:border-zinc-800/50">
-          <Search className="w-6 h-6 text-zinc-400 mr-4" />
+        <div className="flex items-center px-6 py-5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-950/60">
+          <Search className="w-6 h-6 text-zinc-500 dark:text-zinc-400 mr-4" />
           <input
             ref={inputRef}
             type="text"
             placeholder="Suchen nach Klassen, Räumen oder Lehrern..."
-            className="flex-grow bg-transparent border-none outline-none text-2xl font-medium text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 tracking-tight"
+            className="flex-grow bg-transparent border-none outline-none text-2xl font-medium text-black dark:text-white placeholder:text-zinc-400 tracking-tight"
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
@@ -156,8 +156,8 @@ export default function CommandPalette({ isOpen, onClose, onSelect, items }: Com
                       id={`item-${index}`}
                       className={`group w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200 ${
                         isSelected 
-                        ? 'bg-blue-600 shadow-lg shadow-blue-600/20' 
-                        : 'hover:bg-zinc-100 dark:hover:bg-zinc-800/50'
+                        ? 'bg-black text-white dark:bg-white dark:text-black shadow-lg shadow-black/15 dark:shadow-white/10' 
+                        : 'hover:bg-zinc-100 dark:hover:bg-zinc-900'
                       }`}
                       onClick={() => {
                         onSelect(item);
@@ -168,13 +168,13 @@ export default function CommandPalette({ isOpen, onClose, onSelect, items }: Com
                       <div className="flex items-center gap-3">
                         <div className={`p-2 rounded-lg transition-colors ${
                           isSelected 
-                          ? 'bg-white/20 text-white' 
+                          ? 'bg-white/15 text-white dark:bg-zinc-100 dark:text-black' 
                           : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-700'
                         }`}>
                           {getTypeIcon(item.type)}
                         </div>
                         <div className="text-left">
-                          <p className={`text-base font-bold tracking-tight ${isSelected ? 'text-white' : 'text-zinc-900 dark:text-zinc-100'}`}>
+                          <p className={`text-base font-bold tracking-tight ${isSelected ? 'text-white dark:text-black' : 'text-zinc-900 dark:text-zinc-100'}`}>
                             {item.name}
                           </p>
                         </div>
@@ -182,7 +182,7 @@ export default function CommandPalette({ isOpen, onClose, onSelect, items }: Com
                       
                       <div className="flex items-center gap-3">
                         {isSelected && (
-                          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/20 text-white/90">
+                          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/15 text-white/90 dark:bg-zinc-100 dark:text-black">
                             <span className="text-[10px] font-black tracking-widest uppercase">Auswählen</span>
                             <ChevronRight className="w-3 h-3" />
                           </div>
@@ -206,7 +206,7 @@ export default function CommandPalette({ isOpen, onClose, onSelect, items }: Com
           )}
         </div>
 
-        <div className="px-6 py-4 bg-zinc-50/50 dark:bg-zinc-900/50 border-t border-zinc-200/50 dark:border-zinc-800/50 flex items-center justify-between text-[11px] font-medium text-zinc-400 tracking-tight">
+        <div className="px-6 py-4 bg-zinc-50/80 dark:bg-zinc-950/80 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between text-[11px] font-medium text-zinc-500 dark:text-zinc-400 tracking-tight">
           <div className="flex items-center gap-6">
              <div className="flex items-center gap-2">
                <span className="flex items-center justify-center w-5 h-5 rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-[10px] shadow-sm italic">↑↓</span>
