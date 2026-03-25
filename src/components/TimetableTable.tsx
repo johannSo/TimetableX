@@ -44,7 +44,7 @@ export default function TimetableTable({ entries, showClassColumn }: TimetableTa
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto table-wrap">
       <table
         className="w-full"
         style={{ borderCollapse: 'collapse' }}
@@ -70,10 +70,9 @@ export default function TimetableTable({ entries, showClassColumn }: TimetableTa
             return (
               <tr
                 key={i}
+                className={`table-row ${cancelled ? 'cancelled' : ''}`}
                 style={{
                   borderBottom: isLast ? 'none' : `1px solid ${cancelled ? 'var(--color-danger-border)' : 'var(--color-border-subtle)'}`,
-                  background: cancelled ? 'var(--color-danger-bg)' : 'transparent',
-                  transition: 'background 150ms ease',
                 }}
               >
                 {/* Hour */}
@@ -109,7 +108,7 @@ export default function TimetableTable({ entries, showClassColumn }: TimetableTa
                       className="font-semibold text-base"
                       style={{
                         color: cancelled ? 'var(--color-danger)' : 'var(--color-text)',
-                        textDecoration: cancelled ? 'line-through' : 'none',
+                        textDecorationLine: cancelled ? 'line-through' : 'none',
                         textDecorationColor: 'var(--color-danger)',
                       }}
                     >
@@ -153,13 +152,10 @@ export default function TimetableTable({ entries, showClassColumn }: TimetableTa
                   }}
                 >
                   <span
+                    className="badge"
                     style={{
-                      display: 'inline-block',
-                      padding: '0.25rem 0.625rem',
-                      borderRadius: 'var(--radius-sm)',
                       background: cancelled ? 'var(--color-danger-border)' : 'var(--color-primary-light)',
                       color: cancelled ? 'var(--color-danger)' : 'var(--color-primary)',
-                      fontSize: '0.8125rem',
                     }}
                   >
                     {e.room}

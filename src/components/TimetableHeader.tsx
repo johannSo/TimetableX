@@ -27,6 +27,7 @@ interface TimetableHeaderProps {
   isFavorite: boolean;
   onToggleFavorite: () => void;
   favorites: Favorite[];
+  isToday: boolean;
   onSelectFavorite: (mode: FilterMode, value: string) => void;
 }
 
@@ -54,31 +55,28 @@ export default function TimetableHeader({
   isFavorite,
   onToggleFavorite,
   favorites,
+  isToday,
   onSelectFavorite,
 }: TimetableHeaderProps) {
   const router = useRouter();
+  const cleanDate = dateText ? dateText.replace(/\s*\(Aktualisiert:.*\)\s*$/u, '') : '';
 
   return (
-    <div
-      style={{
-        borderBottom: '1px solid var(--color-border)',
-        background: 'var(--color-surface)',
-      }}
-    >
+    <div className="border-b" style={{ borderColor: 'var(--color-border)', background: 'var(--color-surface)' }}>
       {/* Top bar */}
-      <div className="flex items-center justify-between gap-4 px-5 py-4 sm:px-8 sm:py-5">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-5 py-4 sm:px-8 sm:py-5">
         {/* Brand */}
         <div className="flex items-center gap-3 min-w-0">
           <Image
             src="/pfp.png"
             alt="TimetableX Logo"
-            width={40}
-            height={40}
-            className="rounded-xl flex-shrink-0"
+            width={44}
+            height={44}
+            className="rounded-[10px] flex-shrink-0"
           />
           <div className="min-w-0">
             <h1
-              className="text-lg font-bold leading-tight tracking-tight truncate"
+              className="text-lg font-bold leading-tight tracking-tight truncate display"
               style={{ color: 'var(--color-text)' }}
             >
               TimetableX
@@ -95,7 +93,7 @@ export default function TimetableHeader({
               ) : (
                 <>
                   <CalendarDays className="w-3.5 h-3.5 flex-shrink-0" />
-                  <span className="truncate">{dateText || 'Stundenplan'}</span>
+                  <span className="truncate">{cleanDate || 'Stundenplan'}</span>
                 </>
               )}
             </p>
@@ -103,30 +101,13 @@ export default function TimetableHeader({
         </div>
 
         {/* Controls */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
           {/* Day navigation */}
-          <div
-            className="flex items-center"
-            style={{
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-md)',
-              overflow: 'hidden',
-              background: 'var(--color-bg)',
-            }}
-          >
+          <div className="flex items-center gap-2">
             <button
               onClick={() => onNavigate(-1)}
               aria-label="Vorheriger Tag"
-              className="flex items-center justify-center cursor-pointer transition-colors"
-              style={{
-                width: 44,
-                height: 44,
-                color: 'var(--color-text)',
-                background: 'transparent',
-                border: 'none',
-              }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-border-subtle)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+              className="icon-btn"
             >
               <ChevronLeft className="w-5 h-5" strokeWidth={2} />
             </button>
@@ -134,24 +115,8 @@ export default function TimetableHeader({
             <button
               onClick={() => router.push('/')}
               aria-label="Heute"
-              className="text-sm font-medium cursor-pointer transition-colors px-3"
-              style={{
-                height: 44,
-                color: 'var(--color-text-secondary)',
-                background: 'transparent',
-                border: 'none',
-                borderLeft: '1px solid var(--color-border)',
-                borderRight: '1px solid var(--color-border)',
-                fontFamily: 'inherit',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.color = 'var(--color-text)';
-                e.currentTarget.style.background = 'var(--color-border-subtle)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.color = 'var(--color-text-secondary)';
-                e.currentTarget.style.background = 'transparent';
-              }}
+              className={`btn ${isToday ? 'btn-primary' : 'btn-ghost'} text-sm`}
+              style={{ height: 48, padding: '0 0.9rem' }}
             >
               Heute
             </button>
@@ -159,16 +124,7 @@ export default function TimetableHeader({
             <button
               onClick={() => onNavigate(1)}
               aria-label="Nächster Tag"
-              className="flex items-center justify-center cursor-pointer transition-colors"
-              style={{
-                width: 44,
-                height: 44,
-                color: 'var(--color-text)',
-                background: 'transparent',
-                border: 'none',
-              }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-border-subtle)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+              className="icon-btn"
             >
               <ChevronRight className="w-5 h-5" strokeWidth={2} />
             </button>
@@ -178,25 +134,7 @@ export default function TimetableHeader({
           <button
             onClick={onLogout}
             aria-label="Abmelden"
-            className="flex items-center justify-center cursor-pointer transition-colors"
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--color-border)',
-              background: 'var(--color-bg)',
-              color: 'var(--color-text-secondary)',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.color = 'var(--color-danger)';
-              e.currentTarget.style.borderColor = 'var(--color-danger-border)';
-              e.currentTarget.style.background = 'var(--color-danger-bg)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.color = 'var(--color-text-secondary)';
-              e.currentTarget.style.borderColor = 'var(--color-border)';
-              e.currentTarget.style.background = 'var(--color-bg)';
-            }}
+            className="icon-btn icon-btn-danger"
           >
             <LogOut className="w-5 h-5" strokeWidth={2} />
           </button>
@@ -204,32 +142,13 @@ export default function TimetableHeader({
       </div>
 
       {/* Filter & Favorites bar */}
-      <div
-        className="px-5 pb-5 sm:px-8 sm:pb-6 space-y-4"
-        style={{ borderTop: '1px solid var(--color-border-subtle)' }}
-      >
-        <div className="pt-4 flex flex-col sm:flex-row gap-3">
+      <div className="px-5 pb-5 sm:px-8 sm:pb-6 space-y-4" style={{ borderTop: '1px solid var(--color-border-subtle)' }}>
+        <div className="pt-4 flex flex-row items-stretch gap-3 flex-nowrap">
           {/* Current selection button */}
           <button
             onClick={onOpenPalette}
             aria-label="Klasse, Raum oder Lehrer suchen"
-            className="flex items-center gap-3 cursor-pointer transition-all active:scale-[0.99] flex-1"
-            style={{
-              padding: '0.875rem 1rem',
-              borderRadius: 'var(--radius-lg)',
-              border: '1.5px solid var(--color-border)',
-              background: 'var(--color-bg)',
-              textAlign: 'left',
-              fontFamily: 'inherit',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.borderColor = 'var(--color-primary)';
-              e.currentTarget.style.background = 'var(--color-primary-light)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.borderColor = 'var(--color-border)';
-              e.currentTarget.style.background = 'var(--color-bg)';
-            }}
+            className="search-trigger flex-1 min-w-0 active:scale-[0.99]"
           >
             <div
               className="flex items-center justify-center flex-shrink-0"
@@ -253,13 +172,7 @@ export default function TimetableHeader({
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <kbd
-                className="hidden sm:flex items-center gap-1 text-xs font-medium px-2 py-1"
-                style={{
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--color-border)',
-                  background: 'var(--color-surface)',
-                  color: 'var(--color-text-muted)',
-                }}
+                className="hidden sm:flex kbd"
               >
                 ⌘K
               </kbd>
@@ -272,19 +185,11 @@ export default function TimetableHeader({
             onClick={onToggleFavorite}
             aria-label={isFavorite ? 'Aus Favoriten entfernen' : 'Zu Favoriten hinzufügen'}
             aria-pressed={isFavorite}
-            className="flex items-center justify-center cursor-pointer transition-all active:scale-[0.96]"
-            style={{
-              width: 52,
-              height: 52,
-              borderRadius: 'var(--radius-lg)',
-              border: isFavorite ? '1.5px solid var(--color-primary)' : '1.5px solid var(--color-border)',
-              background: isFavorite ? 'var(--color-primary)' : 'var(--color-bg)',
-              color: isFavorite ? '#ffffff' : 'var(--color-text-muted)',
-              flexShrink: 0,
-            }}
+            className={`favorite-btn ${isFavorite ? 'active' : ''}`}
+            style={{ flexShrink: 0 }}
           >
             <Star
-              className="w-5 h-5"
+              className="w-5 h-5 block"
               fill={isFavorite ? 'currentColor' : 'none'}
               strokeWidth={2}
             />
@@ -300,31 +205,7 @@ export default function TimetableHeader({
                 <button
                   key={i}
                   onClick={() => onSelectFavorite(f.mode, f.value)}
-                  className="flex items-center gap-2 text-sm font-medium cursor-pointer transition-all active:scale-[0.97]"
-                  style={{
-                    padding: '0.5rem 0.875rem',
-                    borderRadius: 'var(--radius-md)',
-                    border: isSelected
-                      ? '1.5px solid var(--color-primary)'
-                      : '1.5px solid var(--color-border)',
-                    background: isSelected ? 'var(--color-primary)' : 'var(--color-bg)',
-                    color: isSelected ? '#ffffff' : 'var(--color-text-secondary)',
-                    fontFamily: 'inherit',
-                  }}
-                  onMouseEnter={e => {
-                    if (!isSelected) {
-                      e.currentTarget.style.borderColor = 'var(--color-primary)';
-                      e.currentTarget.style.color = 'var(--color-primary)';
-                      e.currentTarget.style.background = 'var(--color-primary-light)';
-                    }
-                  }}
-                  onMouseLeave={e => {
-                    if (!isSelected) {
-                      e.currentTarget.style.borderColor = 'var(--color-border)';
-                      e.currentTarget.style.color = 'var(--color-text-secondary)';
-                      e.currentTarget.style.background = 'var(--color-bg)';
-                    }
-                  }}
+                  className={`chip active:scale-[0.97] ${isSelected ? 'chip-active' : ''}`}
                 >
                   <ModeIcon mode={f.mode} size={14} />
                   <span>{f.value}</span>

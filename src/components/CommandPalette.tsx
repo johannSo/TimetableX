@@ -39,7 +39,8 @@ export default function CommandPalette({ isOpen, onClose, onSelect, items }: Com
   }, [isOpen]);
 
   const filteredItems = useMemo(() => {
-    const q = search.toLowerCase();
+    const q = search.trim().toLowerCase();
+    if (!q) return [];
     return items
       .filter(item => item.name.toLowerCase().includes(q) || item.type.toLowerCase().includes(q))
       .sort((a, b) => {
@@ -108,29 +109,18 @@ export default function CommandPalette({ isOpen, onClose, onSelect, items }: Com
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0"
-        style={{ background: 'rgba(15, 23, 42, 0.5)', backdropFilter: 'blur(4px)' }}
+        className="fixed inset-0 palette-backdrop"
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Panel */}
       <div
-        className="relative w-full max-w-xl overflow-hidden"
-        style={{
-          background: 'var(--color-surface)',
-          border: '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-xl)',
-          boxShadow: '0 24px 64px -12px rgba(0,0,0,0.25)',
-          animation: 'palette-in 180ms ease',
-        }}
+        className="relative w-full max-w-xl overflow-hidden palette-panel"
         onClick={e => e.stopPropagation()}
       >
         {/* Search input */}
-        <div
-          className="flex items-center gap-3 px-4 py-3.5"
-          style={{ borderBottom: '1px solid var(--color-border)' }}
-        >
+        <div className="flex items-center gap-3 px-4 py-3.5" style={{ borderBottom: '1px solid var(--color-border)' }}>
           <Search
             className="w-5 h-5 flex-shrink-0"
             style={{ color: 'var(--color-primary)' }}
@@ -141,34 +131,15 @@ export default function CommandPalette({ isOpen, onClose, onSelect, items }: Com
             type="search"
             placeholder="Klasse, Raum oder Lehrer suchen…"
             aria-label="Suche"
-            className="flex-1 text-base bg-transparent border-none outline-none"
-            style={{
-              color: 'var(--color-text)',
-              fontFamily: 'inherit',
-            }}
+            className="flex-1 bg-transparent border-none outline-none palette-input"
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
           <button
             onClick={onClose}
             aria-label="Schließen"
-            className="flex items-center justify-center cursor-pointer transition-colors flex-shrink-0"
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 'var(--radius-sm)',
-              border: '1px solid var(--color-border)',
-              background: 'transparent',
-              color: 'var(--color-text-muted)',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = 'var(--color-border-subtle)';
-              e.currentTarget.style.color = 'var(--color-text)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = 'transparent';
-              e.currentTarget.style.color = 'var(--color-text-muted)';
-            }}
+            className="icon-btn"
+            style={{ width: 44, height: 44 }}
           >
             <X className="w-3.5 h-3.5" strokeWidth={2.5} />
           </button>
@@ -182,8 +153,8 @@ export default function CommandPalette({ isOpen, onClose, onSelect, items }: Com
         >
           {filteredItems.length > 0 ? (
             <div className="p-2">
-              {groups.map(group => (
-                <div key={group.type}>
+              {groups.map((group, groupIndex) => (
+                <div key={`${group.type}-${groupIndex}`}>
                   {/* Group header */}
                   <div
                     className="flex items-center gap-2 px-3 pt-3 pb-1.5"
@@ -205,13 +176,8 @@ export default function CommandPalette({ isOpen, onClose, onSelect, items }: Com
                         id={`palette-item-${item.originalIndex}`}
                         role="option"
                         aria-selected={isSelected}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-all text-left"
-                        style={{
-                          borderRadius: 'var(--radius-md)',
-                          background: isSelected ? 'var(--color-primary)' : 'transparent',
-                          border: 'none',
-                          fontFamily: 'inherit',
-                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 cursor-pointer text-left palette-item"
+                        style={{ border: 'none', fontFamily: 'inherit' }}
                         onClick={() => { onSelect(item); onClose(); }}
                         onMouseEnter={() => setSelectedIndex(item.originalIndex)}
                       >
@@ -229,9 +195,7 @@ export default function CommandPalette({ isOpen, onClose, onSelect, items }: Com
                         </div>
                         <span
                           className="text-base font-medium"
-                          style={{
-                            color: isSelected ? '#ffffff' : 'var(--color-text)',
-                          }}
+                          style={{ color: isSelected ? '#ffffff' : 'var(--color-text)' }}
                         >
                           {item.name}
                         </span>
@@ -268,12 +232,25 @@ export default function CommandPalette({ isOpen, onClose, onSelect, items }: Com
                 <Search className="w-5 h-5" strokeWidth={1.75} />
               </div>
               <div className="text-center">
-                <p className="text-base font-medium" style={{ color: 'var(--color-text)' }}>
-                  Keine Ergebnisse
-                </p>
-                <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
-                  Versuche einen anderen Suchbegriff.
-                </p>
+                {search.trim().length === 0 ? (
+                  <>
+                    <p className="text-base font-medium" style={{ color: 'var(--color-text)' }}>
+                      Suche starten
+                    </p>
+                    <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
+                      Tippe, um Klasse, Raum oder Lehrer zu finden.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-base font-medium" style={{ color: 'var(--color-text)' }}>
+                      Keine Ergebnisse
+                    </p>
+                    <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
+                      Versuche einen anderen Suchbegriff.
+                    </p>
+                  </>
+                )}
               </div>
             </div>
           )}
@@ -295,14 +272,7 @@ export default function CommandPalette({ isOpen, onClose, onSelect, items }: Com
             ].map(hint => (
               <div key={hint.key} className="flex items-center gap-1.5">
                 <kbd
-                  className="text-xs px-1.5 py-0.5 font-medium"
-                  style={{
-                    borderRadius: 4,
-                    border: '1px solid var(--color-border)',
-                    background: 'var(--color-surface)',
-                    color: 'var(--color-text-secondary)',
-                    fontFamily: 'inherit',
-                  }}
+                  className="kbd"
                 >
                   {hint.key}
                 </kbd>

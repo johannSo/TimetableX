@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
+import BackgroundField from "@/components/BackgroundField";
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F8FAFC" },
-    { media: "(prefers-color-scheme: dark)", color: "#0F172A" },
+    { media: "(prefers-color-scheme: light)", color: "#F7F3EE" },
+    { media: "(prefers-color-scheme: dark)", color: "#0F1112" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -30,6 +31,7 @@ export default function RootLayout({
   return (
     <html lang="de">
       <body className="antialiased">
+        <BackgroundField />
         <Providers>{children}</Providers>
         <script
           dangerouslySetInnerHTML={{

@@ -75,11 +75,14 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
   if (!isInitialized) return null;
   if (!isLogged) return <LoginForm onLogin={login} />;
 
+  const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const isToday = !currentDateStr || currentDateStr === todayStr;
+
   const isEmptyDay =
     data?.isWeekend || (data && data.entries.length === 0 && !data.dayNotes?.length);
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="w-full">
       <CommandPalette
         isOpen={isPaletteOpen}
         onClose={() => setIsPaletteOpen(false)}
@@ -88,15 +91,7 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
       />
 
       {/* Main card */}
-      <div
-        style={{
-          background: 'var(--color-surface)',
-          border: '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-2xl)',
-          boxShadow: 'var(--shadow-md)',
-          overflow: 'hidden',
-        }}
-      >
+      <div className="panel panel-flat">
         <TimetableHeader
           isLoading={isLoading}
           dateText={data?.date}
@@ -108,6 +103,7 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
           isFavorite={isFavorite(filterMode, selectedValue)}
           onToggleFavorite={() => toggleFavorite(filterMode, selectedValue)}
           favorites={favorites}
+          isToday={isToday}
           onSelectFavorite={(mode, value) => {
             setFilterMode(mode);
             setSelectedValue(value);
@@ -125,7 +121,7 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
                 strokeWidth={1.75}
               />
               <p
-                className="text-sm font-medium"
+                className="text-base font-medium"
                 style={{ color: 'var(--color-text-secondary)' }}
               >
                 Daten werden geladen…
@@ -156,17 +152,8 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
               </div>
               <button
                 onClick={() => router.push('/')}
-                className="flex items-center gap-2 text-sm font-semibold cursor-pointer transition-all active:scale-[0.97]"
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  borderRadius: 'var(--radius-md)',
-                  background: 'var(--color-primary)',
-                  color: '#ffffff',
-                  border: 'none',
-                  fontFamily: 'inherit',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-primary-hover)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'var(--color-primary)')}
+                className="btn btn-primary text-sm"
+                style={{ padding: '0.75rem 1.5rem' }}
               >
                 <RefreshCw className="w-4 h-4" strokeWidth={2} />
                 Erneut versuchen
@@ -202,25 +189,8 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
               </div>
               <button
                 onClick={() => router.push('/')}
-                className="flex items-center gap-2 text-sm font-medium cursor-pointer transition-all active:scale-[0.97]"
-                style={{
-                  padding: '0.625rem 1.25rem',
-                  borderRadius: 'var(--radius-md)',
-                  border: '1.5px solid var(--color-border)',
-                  background: 'var(--color-bg)',
-                  color: 'var(--color-text-secondary)',
-                  fontFamily: 'inherit',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.borderColor = 'var(--color-primary)';
-                  e.currentTarget.style.color = 'var(--color-primary)';
-                  e.currentTarget.style.background = 'var(--color-primary-light)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = 'var(--color-border)';
-                  e.currentTarget.style.color = 'var(--color-text-secondary)';
-                  e.currentTarget.style.background = 'var(--color-bg)';
-                }}
+                className="btn btn-outline text-sm"
+                style={{ padding: '0.625rem 1.25rem' }}
               >
                 <RefreshCw className="w-3.5 h-3.5" strokeWidth={2} />
                 Aktualisieren
@@ -236,13 +206,7 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
 
         {/* Day notes */}
         {data?.dayNotes && data.dayNotes.length > 0 && (
-          <div
-            style={{
-              borderTop: '1px solid var(--color-warning-border)',
-              background: 'var(--color-warning-bg)',
-              padding: '1.25rem 1.5rem',
-            }}
-          >
+          <div className="day-notes">
             <div
               className="flex items-center gap-2 mb-3"
               style={{ color: 'var(--color-warning)' }}

@@ -20,16 +20,10 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-dvh px-4 py-12" style={{ background: 'var(--color-bg)' }}>
+    <div className="app-shell flex flex-col items-center justify-center min-h-dvh px-4 py-12">
       <div
-        className="w-full max-w-sm"
-        style={{
-          background: 'var(--color-surface)',
-          border: '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-2xl)',
-          boxShadow: 'var(--shadow-lg)',
-          padding: '2.5rem',
-        }}
+        className="w-full max-w-sm panel"
+        style={{ padding: '2.5rem' }}
       >
         {/* Logo & Title */}
         <div className="flex flex-col items-center mb-10">
@@ -37,14 +31,14 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
             <Image
               src="/pfp.png"
               alt="TimetableX Logo"
-              width={72}
-              height={72}
-              className="rounded-2xl"
+              width={64}
+              height={64}
+              className="rounded-[10px]"
               priority
             />
           </div>
           <h1
-            className="text-2xl font-bold tracking-tight mb-1"
+            className="text-2xl font-bold tracking-tight mb-1 display"
             style={{ color: 'var(--color-text)' }}
           >
             TimetableX
@@ -73,24 +67,7 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
               placeholder="z.B. 12345678"
               value={input.school}
               onChange={e => setInput({ ...input, school: e.target.value })}
-              className="w-full text-base transition-all cursor-text"
-              style={{
-                padding: '0.875rem 1rem',
-                borderRadius: 'var(--radius-md)',
-                border: '1.5px solid var(--color-border)',
-                background: 'var(--color-bg)',
-                color: 'var(--color-text)',
-                outline: 'none',
-                fontFamily: 'inherit',
-              }}
-              onFocus={e => {
-                e.target.style.borderColor = 'var(--color-primary)';
-                e.target.style.boxShadow = '0 0 0 3px var(--color-primary-border)';
-              }}
-              onBlur={e => {
-                e.target.style.borderColor = 'var(--color-border)';
-                e.target.style.boxShadow = 'none';
-              }}
+              className="input-field"
             />
           </div>
 
@@ -112,24 +89,7 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
               placeholder="Benutzername"
               value={input.user}
               onChange={e => setInput({ ...input, user: e.target.value })}
-              className="w-full text-base transition-all cursor-text"
-              style={{
-                padding: '0.875rem 1rem',
-                borderRadius: 'var(--radius-md)',
-                border: '1.5px solid var(--color-border)',
-                background: 'var(--color-bg)',
-                color: 'var(--color-text)',
-                outline: 'none',
-                fontFamily: 'inherit',
-              }}
-              onFocus={e => {
-                e.target.style.borderColor = 'var(--color-primary)';
-                e.target.style.boxShadow = '0 0 0 3px var(--color-primary-border)';
-              }}
-              onBlur={e => {
-                e.target.style.borderColor = 'var(--color-border)';
-                e.target.style.boxShadow = 'none';
-              }}
+              className="input-field"
             />
           </div>
 
@@ -151,46 +111,14 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
               placeholder="••••••••"
               value={input.pass}
               onChange={e => setInput({ ...input, pass: e.target.value })}
-              className="w-full text-base transition-all cursor-text"
-              style={{
-                padding: '0.875rem 1rem',
-                borderRadius: 'var(--radius-md)',
-                border: '1.5px solid var(--color-border)',
-                background: 'var(--color-bg)',
-                color: 'var(--color-text)',
-                outline: 'none',
-                fontFamily: 'inherit',
-              }}
-              onFocus={e => {
-                e.target.style.borderColor = 'var(--color-primary)';
-                e.target.style.boxShadow = '0 0 0 3px var(--color-primary-border)';
-              }}
-              onBlur={e => {
-                e.target.style.borderColor = 'var(--color-border)';
-                e.target.style.boxShadow = 'none';
-              }}
+              className="input-field"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full flex items-center justify-center gap-2 text-base font-semibold cursor-pointer transition-all active:scale-[0.98]"
-            style={{
-              padding: '0.9375rem 1.5rem',
-              borderRadius: 'var(--radius-md)',
-              background: 'var(--color-primary)',
-              color: '#ffffff',
-              border: 'none',
-              marginTop: '0.5rem',
-              boxShadow: 'var(--shadow-sm)',
-              fontFamily: 'inherit',
-            }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLButtonElement).style.background = 'var(--color-primary-hover)';
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLButtonElement).style.background = 'var(--color-primary)';
-            }}
+            className="btn btn-primary w-full text-base"
+            style={{ padding: '0.9375rem 1.5rem', marginTop: '0.5rem' }}
           >
             Anmelden
             <ArrowRight className="w-4 h-4" />

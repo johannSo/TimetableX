@@ -8,7 +8,7 @@ export default async function Home({ searchParams }: PageProps) {
   const { date } = await searchParams;
 
   return (
-    <main className="min-h-dvh py-6 px-4 sm:px-6 lg:px-8" style={{ background: 'var(--color-bg)' }}>
+    <main className="app-shell edge-shell">
       <ClientViewer currentDateStr={date} />
     </main>
   );
