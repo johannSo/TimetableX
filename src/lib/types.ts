@@ -1,0 +1,43 @@
+export type FilterMode = 'class' | 'room' | 'teacher';
+
+export interface TimetableEntry {
+  class: string;
+  hour: string;
+  subject: string;
+  teacher: string;
+  room: string;
+  info: string;
+  roomChanged?: boolean;
+  teacherChanged?: boolean;
+  subjectChanged?: boolean;
+  hourChanged?: boolean;
+}
+
+export interface TimetableData {
+  title: string;
+  date: string;
+  entries: TimetableEntry[];
+  availableClasses: string[];
+  availableRooms: string[];
+  availableTeachers: string[];
+  currentDateStr: string;
+  dayNotes?: string[];
+  isWeekend?: boolean;
+}
+
+export interface Favorite {
+  mode: FilterMode;
+  value: string;
+}
+
+export interface TimetableCredentialsStatus {
+  hasCredentials: boolean;
+  school?: string;
+  user?: string;
+}
+
+export interface SearchItem {
+  id: string;
+  name: string;
+  type: FilterMode;
+}

@@ -1,0 +1,6 @@
+[00:00:02.165] Server  LOG     ✓ Ready in 1836ms
+[00:00:08.962] Server  LOG     ○ Compiling / ...
+[00:00:15.142] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:18.658] Server  LOG     ○ Compiling /api/auth/[...all] ...
+[00:00:30.443] Server  WARN    2026-04-09T21:21:56.624Z WARN [Better Auth]: [better-auth] Base URL could not be determined. Please set a valid base URL using the baseURL config option or the BETTER_AUTH_URL environment variable. Without this, callbacks and redirects may not work correctly.
+[00:00:35.756] Browser WARN    Image with src "/pfp.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
