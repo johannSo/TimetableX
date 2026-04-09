@@ -1,29 +1,29 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { FilterMode } from '@/lib/types';
+import { Credentials, FilterMode } from '@/lib/types';
 
 export function useAvailableSubjects(
-  enabled: boolean,
+  creds: Credentials | null,
   filterMode: FilterMode,
   selectedValue: string
 ) {
   const { data, isLoading, isFetching } = useQuery<{ subjects: string[] }, Error>({
-    queryKey: ['availableSubjects', filterMode, selectedValue],
+    queryKey: ['availableSubjects', creds?.school, creds?.user, filterMode, selectedValue],
     queryFn: async () => {
-      if (!selectedValue) throw new Error('No selection');
+      if (!creds || !selectedValue) throw new Error('No credentials or selection');
       
       const res = await fetch('/api/subjects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filterMode, selectedValue }),
+        body: JSON.stringify({ ...creds, filterMode, selectedValue }),
       });
       
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Fehler beim Laden der Fächer.');
       return json;
     },
-    enabled: enabled && !!selectedValue,
+    enabled: !!creds && !!selectedValue,
     // Keep it fresh for a while so opening/closing the modal is quick
     staleTime: 1000 * 60 * 30, // 30 minutes
   });

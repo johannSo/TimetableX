@@ -5,19 +5,15 @@ import { useRouter } from 'next/navigation';
 import { Loader2, AlertCircle, Calendar, CheckCircle2, RefreshCw } from 'lucide-react';
 
 import CommandPalette from './CommandPalette';
-import AuthFlow from './AuthFlow';
-import TimetableCredentialsForm from './TimetableCredentialsForm';
+import LoginForm from './LoginForm';
 import TimetableHeader from './TimetableHeader';
 import TimetableTable from './TimetableTable';
 import BlacklistModal from './BlacklistModal';
-import UpgradeProPanel from './UpgradeProPanel';
 
-import { authClient } from '@/lib/auth-client';
-import { useTimetableCredentials } from '@/lib/hooks/useTimetableCredentials';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { useFavorites } from '@/lib/hooks/useFavorites';
 import { useTimetable } from '@/lib/hooks/useTimetable';
 import { useAvailableSubjects } from '@/lib/hooks/useAvailableSubjects';
-import { useProStatus } from '@/lib/hooks/useProStatus';
 import { SearchItem, FilterMode } from '@/lib/types';
 
 interface ClientViewerProps {
@@ -26,15 +22,7 @@ interface ClientViewerProps {
 
 export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
   const router = useRouter();
-  const session = authClient.useSession();
-  const isSessionLoading = session.isPending;
-  const isLoggedIn = !!session.data;
-  const isEmailVerified = !!session.data?.user?.emailVerified;
-
-  const credentialsQuery = useTimetableCredentials(isLoggedIn && isEmailVerified);
-  const hasTimetableCredentials = credentialsQuery.data?.hasCredentials;
-  const proQuery = useProStatus(isLoggedIn && isEmailVerified);
-  const isPro = !!proQuery.data;
+  const { creds, isLogged, login, logout, isInitialized } = useAuth();
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const {
     data,
@@ -48,10 +36,10 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
     currentBlacklist,
     addToBlacklist,
     removeFromBlacklist
-  } = useTimetable(!!hasTimetableCredentials, currentDateStr);
+  } = useTimetable(creds, currentDateStr);
 
   const { availableSubjects, isLoadingSubjects } = useAvailableSubjects(
-    !!hasTimetableCredentials,
+    creds,
     filterMode,
     selectedValue
   );
@@ -106,15 +94,8 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
     router.push(`/?date=${next}`);
   };
 
-  if (isSessionLoading) return null;
-  if (!isLoggedIn) return <AuthFlow />;
-  if (!isEmailVerified) return <AuthFlow defaultMode="signin" />;
-  if (credentialsQuery.isLoading) return null;
-  if (!hasTimetableCredentials) {
-    return (
-      <TimetableCredentialsForm onSaved={() => credentialsQuery.refetch()} />
-    );
-  }
+  if (!isInitialized) return null;
+  if (!isLogged) return <LoginForm onLogin={login} />;
 
   const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const isToday = !currentDateStr || currentDateStr === todayStr;
@@ -147,8 +128,7 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
           isLoading={isLoading}
           dateText={data?.date}
           onNavigate={navigateDay}
-          onLogout={() => authClient.signOut()}
-          isPro={isPro}
+          onLogout={logout}
           filterMode={filterMode}
           selectedValue={selectedValue}
           onOpenPalette={() => setIsPaletteOpen(true)}
@@ -162,8 +142,6 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
           }}
           onOpenBlacklist={() => setIsBlacklistOpen(true)}
         />
-
-        {!isPro && <UpgradeProPanel />}
 
         {/* Content area */}
         <div>

@@ -1,13 +1,13 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { TimetableData, FilterMode } from '@/lib/types';
+import { Credentials, TimetableData, FilterMode, TimetableEntry } from '@/lib/types';
 import { useMemo, useState, useEffect } from 'react';
 import { useBlacklist } from './useBlacklist';
 
 const FETCH_KEY = 'timetable';
 
-export function useTimetable(enabled: boolean, date?: string) {
+export function useTimetable(creds: Credentials | null, date?: string) {
   const [filterMode, setFilterMode] = useState<FilterMode>(() => {
     if (typeof window !== 'undefined') {
       return (localStorage.getItem('filterMode') as FilterMode) || 'class';
@@ -25,18 +25,19 @@ export function useTimetable(enabled: boolean, date?: string) {
   const { currentBlacklist, addToBlacklist, removeFromBlacklist } = useBlacklist(selectedValue);
 
   const { data, error, isLoading, isFetching, refetch } = useQuery<TimetableData, Error>({
-    queryKey: [FETCH_KEY, date],
+    queryKey: [FETCH_KEY, creds?.school, creds?.user, date],
     queryFn: async () => {
+      if (!creds) throw new Error('No credentials');
       const res = await fetch('/api/stundenplan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date }),
+        body: JSON.stringify({ ...creds, date }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Fehler beim Laden der Daten.');
       return json;
     },
-    enabled,
+    enabled: !!creds,
   });
 
   // Automatically select first available value if none selected or current not available

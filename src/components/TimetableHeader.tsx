@@ -22,7 +22,6 @@ interface TimetableHeaderProps {
   dateText?: string;
   onNavigate: (offset: number) => void;
   onLogout: () => void;
-  isPro?: boolean;
   filterMode: FilterMode;
   selectedValue: string;
   onOpenPalette: () => void;
@@ -52,7 +51,6 @@ export default function TimetableHeader({
   dateText,
   onNavigate,
   onLogout,
-  isPro = false,
   filterMode,
   selectedValue,
   onOpenPalette,
@@ -80,26 +78,12 @@ export default function TimetableHeader({
             className="rounded-[10px] flex-shrink-0"
           />
           <div className="min-w-0">
-            <div className="flex items-center gap-2 min-w-0">
-              <h1
-                className="text-lg font-bold leading-tight tracking-tight truncate display"
-                style={{ color: 'var(--color-text)' }}
-              >
-                TimetableX
-              </h1>
-              {isPro && (
-                <span
-                  className="text-[11px] font-semibold px-2 py-0.5 rounded-full"
-                  style={{
-                    background: 'var(--color-primary-light)',
-                    color: 'var(--color-primary)',
-                    border: '1px solid var(--color-primary)',
-                  }}
-                >
-                  Pro
-                </span>
-              )}
-            </div>
+            <h1
+              className="text-lg font-bold leading-tight tracking-tight truncate display"
+              style={{ color: 'var(--color-text)' }}
+            >
+              TimetableX
+            </h1>
             <p
               className="text-sm leading-tight flex items-center gap-1.5"
               style={{ color: 'var(--color-text-secondary)' }}

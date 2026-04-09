@@ -30,10 +30,10 @@ export interface Favorite {
   value: string;
 }
 
-export interface TimetableCredentialsStatus {
-  hasCredentials: boolean;
-  school?: string;
-  user?: string;
+export interface Credentials {
+  school: string;
+  user: string;
+  pass: string;
 }
 
 export interface SearchItem {
