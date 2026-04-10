@@ -1,4 +1,4 @@
-// File: /home/me/Downloads/timetablex-webui/src/app/api/auth/[...all]/route.ts
+// File: /home/me/Downloads/Timetablex-webui/src/app/api/auth/[...all]/route.ts
 import * as entry from '../../../../../../../src/app/api/auth/[...all]/route.js'
 import type { NextRequest } from 'next/server.js'
 

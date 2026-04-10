@@ -133,7 +133,7 @@ const polarPlugins = polarClient
                     const email = customer?.email || data?.email;
                     await setHasPro(externalId, false, email);
                   },
-                  onSubscriptionPastDue: async (payload: any) => {
+                  onSubscriptionUpdated: async (payload: any) => {
                     const data = payload?.data ?? payload;
                     const customer = data?.customer ?? data?.customer_data ?? data?.customerData;
                     const externalId =
@@ -144,8 +144,11 @@ const polarPlugins = polarClient
                       data?.customer_external_id ||
                       data?.customerExternalId;
                     if (!externalId) return;
-                    const email = customer?.email || data?.email;
-                    await setHasPro(externalId, false, email);
+                    const status = data?.status || data?.subscription_status;
+                    if (status === "past_due" || status === "canceled" || status === "revoked") {
+                      const email = customer?.email || data?.email;
+                      await setHasPro(externalId, false, email);
+                    }
                   },
                 }),
               ]

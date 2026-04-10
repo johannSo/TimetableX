@@ -1,4 +1,4 @@
-import ClientViewer from '@/components/ClientViewer';
+import HomePageClient from '@/components/HomePageClient';
 
 interface PageProps {
   searchParams: Promise<{ date?: string }>;
@@ -9,7 +9,7 @@ export default async function Home({ searchParams }: PageProps) {
 
   return (
     <main className="app-shell edge-shell">
-      <ClientViewer currentDateStr={date} />
+      <HomePageClient currentDateStr={date} />
     </main>
   );
 }

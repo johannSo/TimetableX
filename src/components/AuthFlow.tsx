@@ -7,9 +7,10 @@ import { authClient } from '@/lib/auth-client';
 
 interface AuthFlowProps {
   defaultMode?: 'signup' | 'signin';
+  embedded?: boolean;
 }
 
-export default function AuthFlow({ defaultMode = 'signup' }: AuthFlowProps) {
+export default function AuthFlow({ defaultMode = 'signup', embedded = false }: AuthFlowProps) {
   const [mode, setMode] = useState<'signup' | 'signin' | 'verify'>(defaultMode);
   const [pendingEmail, setPendingEmail] = useState('');
   const [pendingName, setPendingName] = useState('');
@@ -79,8 +80,13 @@ export default function AuthFlow({ defaultMode = 'signup' }: AuthFlowProps) {
   };
 
   return (
-    <div className="app-shell flex flex-col items-center justify-center min-h-dvh px-4 py-12">
-      <div className="w-full max-w-sm panel" style={{ padding: '2.5rem' }}>
+    <div
+      className={embedded ? 'w-full' : 'app-shell flex flex-col items-center justify-center min-h-dvh px-4 py-12'}
+    >
+      <div
+        className={`w-full panel ${embedded ? 'max-w-none' : 'max-w-sm'}`}
+        style={{ padding: embedded ? '2.125rem' : '2.5rem' }}
+      >
         <div className="flex flex-col items-center mb-10">
           <div className="mb-5">
             <Image
@@ -96,7 +102,7 @@ export default function AuthFlow({ defaultMode = 'signup' }: AuthFlowProps) {
             TimetableX
           </h1>
           <p className="text-base" style={{ color: 'var(--color-text-secondary)' }}>
-            {mode === 'verify' ? 'E-Mail bestätigen' : 'Bitte melde dich an'}
+            {mode === 'verify' ? 'E-Mail bestätigen' : embedded ? 'In weniger als einer Minute startklar' : 'Bitte melde dich an'}
           </p>
         </div>
 
