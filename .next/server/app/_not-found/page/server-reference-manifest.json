@@ -9,9 +9,6 @@
           "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js"
         }
       },
-      "layer": {
-        "app/_not-found/page": "action-browser"
-      },
       "exportedName": "invalidateCacheAction",
       "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js"
     },
@@ -23,9 +20,6 @@
           "exportedName": "createOrReadKeylessAction",
           "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
         }
-      },
-      "layer": {
-        "app/_not-found/page": "rsc"
       },
       "exportedName": "createOrReadKeylessAction",
       "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
@@ -39,9 +33,6 @@
           "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
         }
       },
-      "layer": {
-        "app/_not-found/page": "action-browser"
-      },
       "exportedName": "deleteKeylessAction",
       "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
     },
@@ -53,9 +44,6 @@
           "exportedName": "syncKeylessConfigAction",
           "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
         }
-      },
-      "layer": {
-        "app/_not-found/page": "action-browser"
       },
       "exportedName": "syncKeylessConfigAction",
       "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"

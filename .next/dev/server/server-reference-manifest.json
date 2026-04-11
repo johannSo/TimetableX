@@ -1,5 +1,46 @@
 {
-  "node": {},
+  "node": {
+    "00672e9fa7f6cca0008137796b8d65cf83882174bc": {
+      "workers": {
+        "app/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fme%2FDownloads%2FTimetablex-webui%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%2200672e9fa7f6cca0008137796b8d65cf83882174bc%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%2C%22filename%22%3A%22..%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%7D%2C%7B%22id%22%3A%2200f039a544847c59616b418bcfe41c8c5df8eb00b6%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%2C%22filename%22%3A%22..%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%7D%2C%7B%22id%22%3A%2240f9b3a932babeab3b8b01cf370aa6c836dba89220%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%2C%22filename%22%3A%22..%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "filename": "../node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js",
+      "exportedName": "deleteKeylessAction"
+    },
+    "00f039a544847c59616b418bcfe41c8c5df8eb00b6": {
+      "workers": {
+        "app/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fme%2FDownloads%2FTimetablex-webui%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%2200672e9fa7f6cca0008137796b8d65cf83882174bc%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%2C%22filename%22%3A%22..%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%7D%2C%7B%22id%22%3A%2200f039a544847c59616b418bcfe41c8c5df8eb00b6%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%2C%22filename%22%3A%22..%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%7D%2C%7B%22id%22%3A%2240f9b3a932babeab3b8b01cf370aa6c836dba89220%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%2C%22filename%22%3A%22..%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "filename": "../node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js",
+      "exportedName": "createOrReadKeylessAction"
+    },
+    "40f9b3a932babeab3b8b01cf370aa6c836dba89220": {
+      "workers": {
+        "app/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fme%2FDownloads%2FTimetablex-webui%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%2200672e9fa7f6cca0008137796b8d65cf83882174bc%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%2C%22filename%22%3A%22..%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%7D%2C%7B%22id%22%3A%2200f039a544847c59616b418bcfe41c8c5df8eb00b6%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%2C%22filename%22%3A%22..%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%7D%2C%7B%22id%22%3A%2240f9b3a932babeab3b8b01cf370aa6c836dba89220%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%2C%22filename%22%3A%22..%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "filename": "../node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js",
+      "exportedName": "syncKeylessConfigAction"
+    },
+    "00f41df5fdfdbbb5a7e503430750201163b7145ceb": {
+      "workers": {
+        "app/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fme%2FDownloads%2FTimetablex-webui%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fserver-actions.js%22%2C%5B%7B%22id%22%3A%2200f41df5fdfdbbb5a7e503430750201163b7145ceb%22%2C%22exportedName%22%3A%22invalidateCacheAction%22%2C%22filename%22%3A%22..%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fserver-actions.js%22%7D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "filename": "../node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js",
+      "exportedName": "invalidateCacheAction"
+    }
+  },
   "edge": {},
   "encryptionKey": "RTcjx3ruyIqbMOZQfehOU1VkFLpbCNdY6iiukRnlXZI="
 }
