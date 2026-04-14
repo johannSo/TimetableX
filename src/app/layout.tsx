@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
 import BackgroundField from "@/components/BackgroundField";
-import OptionalClerkProvider from "@/components/OptionalClerkProvider";
 
 export const viewport: Viewport = {
   themeColor: [
@@ -33,9 +32,7 @@ export default function RootLayout({
     <html lang="de">
       <body className="antialiased">
         <BackgroundField />
-        <OptionalClerkProvider>
-          <Providers>{children}</Providers>
-        </OptionalClerkProvider>
+        <Providers>{children}</Providers>
         <script
           dangerouslySetInnerHTML={{
             __html: `

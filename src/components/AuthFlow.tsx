@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { ArrowRight, Mail, Lock, User as UserIcon } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 
@@ -11,11 +12,11 @@ interface AuthFlowProps {
 }
 
 export default function AuthFlow({ defaultMode = 'signup', embedded = false }: AuthFlowProps) {
-  const [mode, setMode] = useState<'signup' | 'signin' | 'verify'>(defaultMode);
+  const [mode, setMode] = useState<'signup' | 'signin'>(defaultMode);
   const [pendingEmail, setPendingEmail] = useState('');
-  const [pendingName, setPendingName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isBusy, setIsBusy] = useState(false);
+  const [showVerifyPopup, setShowVerifyPopup] = useState(false);
 
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
@@ -43,8 +44,10 @@ export default function AuthFlow({ defaultMode = 'signup', embedded = false }: A
     }
 
     setPendingEmail(email);
-    setPendingName(name);
-    setMode('verify');
+    setEmail(email);
+    setPassword('');
+    setMode('signin');
+    setShowVerifyPopup(true);
   };
 
   const handleSignin = async (e: React.FormEvent) => {
@@ -66,11 +69,12 @@ export default function AuthFlow({ defaultMode = 'signup', embedded = false }: A
   };
 
   const handleResend = async () => {
-    if (!pendingEmail) return;
+    const targetEmail = pendingEmail || email;
+    if (!targetEmail) return;
     resetErrors();
     setIsBusy(true);
     const { error } = await authClient.sendVerificationEmail({
-      email: pendingEmail,
+      email: targetEmail,
       callbackURL: `${window.location.origin}/?verified=1`,
     });
     setIsBusy(false);
@@ -102,135 +106,151 @@ export default function AuthFlow({ defaultMode = 'signup', embedded = false }: A
             TimetableX
           </h1>
           <p className="text-base" style={{ color: 'var(--color-text-secondary)' }}>
-            {mode === 'verify' ? 'E-Mail bestätigen' : embedded ? 'In weniger als einer Minute startklar' : 'Bitte melde dich an'}
+            {embedded ? 'In weniger als einer Minute startklar' : mode === 'signup' ? 'Account erstellen' : 'Bitte melde dich an'}
           </p>
         </div>
 
-        {mode === 'verify' ? (
-          <div className="space-y-5">
-            <div className="text-sm" style={{ color: 'var(--color-text)' }}>
-              <p className="font-semibold mb-2">Check deine Inbox</p>
-              <p style={{ color: 'var(--color-text-secondary)' }}>
-                Wir haben einen Bestätigungslink an <strong>{pendingEmail}</strong> geschickt.
-                Sobald du verifiziert hast, kannst du dich anmelden.
-              </p>
-            </div>
-            <button
-              className="btn btn-primary w-full text-base"
-              style={{ padding: '0.9375rem 1.5rem' }}
-              onClick={handleResend}
-              disabled={isBusy}
+        <form onSubmit={mode === 'signup' ? handleSignup : handleSignin} className="space-y-5">
+          <div className="space-y-2">
+            <label
+              htmlFor="email"
+              className="flex items-center gap-2 text-sm font-medium"
+              style={{ color: 'var(--color-text)' }}
             >
-              Link erneut senden
-            </button>
-            <button
-              className="btn btn-outline w-full text-sm"
-              type="button"
-              onClick={() => {
-                setMode('signin');
-                setEmail(pendingEmail);
-                setName(pendingName);
-              }}
-            >
-              Zur Anmeldung
-            </button>
+              <Mail className="w-4 h-4" style={{ color: 'var(--color-primary)' }} />
+              E-Mail
+            </label>
+            <input
+              id="email"
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              className="input-field"
+            />
           </div>
-        ) : (
-          <form onSubmit={mode === 'signup' ? handleSignup : handleSignin} className="space-y-5">
+
+          {mode === 'signup' && (
             <div className="space-y-2">
               <label
-                htmlFor="email"
+                htmlFor="name"
                 className="flex items-center gap-2 text-sm font-medium"
                 style={{ color: 'var(--color-text)' }}
               >
-                <Mail className="w-4 h-4" style={{ color: 'var(--color-primary)' }} />
-                E-Mail
+                <UserIcon className="w-4 h-4" style={{ color: 'var(--color-primary)' }} />
+                Name
               </label>
               <input
-                id="email"
-                type="email"
+                id="name"
+                type="text"
                 required
-                autoComplete="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
+                autoComplete="name"
+                placeholder="Dein Name"
+                value={name}
+                onChange={e => setName(e.target.value)}
                 className="input-field"
               />
             </div>
+          )}
 
-            {mode === 'signup' && (
-              <div className="space-y-2">
-                <label
-                  htmlFor="name"
-                  className="flex items-center gap-2 text-sm font-medium"
-                  style={{ color: 'var(--color-text)' }}
-                >
-                  <UserIcon className="w-4 h-4" style={{ color: 'var(--color-primary)' }} />
-                  Name
-                </label>
-                <input
-                  id="name"
-                  type="text"
-                  required
-                  autoComplete="name"
-                  placeholder="Dein Name"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  className="input-field"
-                />
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <label
-                htmlFor="password"
-                className="flex items-center gap-2 text-sm font-medium"
-                style={{ color: 'var(--color-text)' }}
-              >
-                <Lock className="w-4 h-4" style={{ color: 'var(--color-primary)' }} />
-                Passwort
-              </label>
-              <input
-                id="password"
-                type="password"
-                required
-                autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-                placeholder="••••••••"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="input-field"
-              />
-            </div>
-
-            {error && (
-              <div className="text-sm" style={{ color: 'var(--color-danger)' }}>
-                {error}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              className="btn btn-primary w-full text-base"
-              style={{ padding: '0.9375rem 1.5rem', marginTop: '0.5rem' }}
-              disabled={isBusy}
+          <div className="space-y-2">
+            <label
+              htmlFor="password"
+              className="flex items-center gap-2 text-sm font-medium"
+              style={{ color: 'var(--color-text)' }}
             >
-              {mode === 'signup' ? 'Account erstellen' : 'Anmelden'}
-              <ArrowRight className="w-4 h-4" />
-            </button>
+              <Lock className="w-4 h-4" style={{ color: 'var(--color-primary)' }} />
+              Passwort
+            </label>
+            <input
+              id="password"
+              type="password"
+              required
+              autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+              placeholder="••••••••"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              className="input-field"
+            />
+          </div>
 
+          {mode === 'signin' && (
             <button
               type="button"
-              className="btn btn-outline w-full text-sm"
-              onClick={() => {
-                resetErrors();
-                setMode(mode === 'signup' ? 'signin' : 'signup');
-              }}
+              className="text-sm underline underline-offset-2"
+              style={{ color: 'var(--color-text-secondary)' }}
+              onClick={handleResend}
+              disabled={isBusy || (!email && !pendingEmail)}
             >
-              {mode === 'signup' ? 'Schon einen Account? Anmelden' : 'Neu hier? Account erstellen'}
+              E-Mail noch nicht bestätigt? Link erneut senden
             </button>
-          </form>
-        )}
+          )}
+
+          {error && (
+            <div className="text-sm" style={{ color: 'var(--color-danger)' }}>
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            className="btn btn-primary w-full text-base"
+            style={{ padding: '0.9375rem 1.5rem', marginTop: '0.5rem' }}
+            disabled={isBusy}
+          >
+            {mode === 'signup' ? 'Account erstellen' : 'Anmelden'}
+            <ArrowRight className="w-4 h-4" />
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-outline w-full text-sm"
+            onClick={() => {
+              resetErrors();
+              setMode(mode === 'signup' ? 'signin' : 'signup');
+            }}
+          >
+            {mode === 'signup' ? 'Schon einen Account? Anmelden' : 'Neu hier? Account erstellen'}
+          </button>
+
+          {!embedded && (
+            <p className="text-xs text-center" style={{ color: 'var(--color-text-muted)' }}>
+              <Link href="/" className="underline underline-offset-2">Zur Startseite</Link>
+            </p>
+          )}
+        </form>
       </div>
+
+      {showVerifyPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 palette-backdrop">
+          <div className="palette-panel w-full max-w-sm p-5">
+            <h2 className="text-lg font-semibold display" style={{ color: 'var(--color-text)' }}>
+              Check your email
+            </h2>
+            <p className="mt-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+              Please click the link in your email to verify your account.
+              {pendingEmail ? ` (${pendingEmail})` : ''}
+            </p>
+            <div className="mt-5 flex gap-2">
+              <button
+                className="btn btn-outline text-sm flex-1"
+                onClick={handleResend}
+                disabled={isBusy}
+              >
+                Link erneut senden
+              </button>
+              <button
+                className="btn btn-primary text-sm flex-1"
+                onClick={() => setShowVerifyPopup(false)}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

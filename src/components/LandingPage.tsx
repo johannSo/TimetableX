@@ -1,11 +1,8 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, CalendarDays, CheckCircle2, Clock3, Layers3, Rocket, ShieldCheck, Sparkles, Star, Zap } from 'lucide-react';
-
-import AuthFlow from '@/components/AuthFlow';
-import ClerkPricingBlock from '@/components/ClerkPricingBlock';
 
 const featureCards = [
   {
@@ -47,14 +44,6 @@ const previewRows = [
 ];
 
 export default function LandingPage() {
-  const [authMode, setAuthMode] = useState<'signup' | 'signin'>('signup');
-  const accessRef = useRef<HTMLElement | null>(null);
-
-  const openAccess = (mode: 'signup' | 'signin') => {
-    setAuthMode(mode);
-    accessRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
   return (
     <div className="relative z-10">
       <header className="sticky top-0 z-20 px-4 pt-4 sm:px-6 lg:px-8">
@@ -88,16 +77,16 @@ export default function LandingPage() {
           <nav className="hidden items-center gap-2 lg:flex">
             <a href="#features" className="chip">Features</a>
             <a href="#pricing" className="chip">Preise</a>
-            <a href="#access" className="chip">Starten</a>
+            <Link href="/signup" className="chip">Starten</Link>
           </nav>
 
           <div className="flex items-center gap-2">
-            <button className="btn btn-outline text-sm" style={{ padding: '0.8rem 1rem' }} onClick={() => openAccess('signin')}>
+            <Link href="/login" className="btn btn-outline text-sm" style={{ padding: '0.8rem 1rem' }}>
               Login
-            </button>
-            <button className="btn btn-primary text-sm" style={{ padding: '0.8rem 1.1rem' }} onClick={() => openAccess('signup')}>
+            </Link>
+            <Link href="/signup" className="btn btn-primary text-sm" style={{ padding: '0.8rem 1.1rem' }}>
               Signup
-            </button>
+            </Link>
           </div>
         </div>
       </header>
@@ -118,10 +107,10 @@ export default function LandingPage() {
               TimetableX holt deinen Stundenplan in eine Oberfläche, die sich nach App anfühlt und nicht nach Verwaltungssoftware.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <button className="btn btn-primary text-base" style={{ padding: '1rem 1.35rem' }} onClick={() => openAccess('signup')}>
+              <Link href="/signup" className="btn btn-primary text-base" style={{ padding: '1rem 1.35rem' }}>
                 Kostenlos starten
                 <ArrowRight className="h-4 w-4" />
-              </button>
+              </Link>
               <a href="#pricing" className="btn btn-outline text-base" style={{ padding: '1rem 1.35rem' }}>
                 Preise ansehen
               </a>
@@ -252,50 +241,100 @@ export default function LandingPage() {
                 Fair für jeden Check, ehrlich für Supporter.
               </h2>
               <p className="mt-3 text-base" style={{ color: 'var(--color-text-secondary)' }}>
-                Die Pricing-Sektion nutzt Clerk, sobald Billing konfiguriert ist. Bis dahin bleibt die Seite mit denselben Preisen als statische Vorschau nutzbar.
+                Kostenlos starten, monatlich upgraden oder einmalig Lifetime freischalten.
               </p>
             </div>
             <div className="surface-soft max-w-xl px-4 py-3 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
               Monatsabo und Lifetime-Pass bleiben beide sichtbar, damit die Landing-Page auch ohne zusätzliche Konfiguration vollständig wirkt.
             </div>
           </div>
-          <ClerkPricingBlock />
-        </div>
-      </section>
-
-      <section id="access" ref={accessRef} className="px-4 py-8 sm:px-6 lg:px-8 lg:pb-16 lg:pt-12">
-        <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-          <div className="panel" style={{ padding: '2rem' }}>
-            <span className="badge">Loslegen</span>
-            <h2 className="mt-4 text-4xl font-bold display" style={{ color: 'var(--color-text)' }}>
-              In wenigen Sekunden im Plan.
-            </h2>
-            <p className="mt-4 text-base" style={{ color: 'var(--color-text-secondary)' }}>
-              Account anlegen, Schuldaten hinterlegen, fertig. Danach ist TimetableX jeden Tag mit einem Tap erreichbar.
-            </p>
-            <div className="mt-6 space-y-4">
-              {[
-                'E-Mail bestätigen und direkt starten',
-                'Zugangsdaten einmal hinterlegen',
-                'Danach nur noch öffnen und kurz checken',
-              ].map((item, index) => (
-                <div key={item} className="flex items-start gap-4">
-                  <div
-                    className="flex h-10 w-10 items-center justify-center rounded-[14px] text-sm font-semibold"
-                    style={{ background: 'var(--color-primary-light)', color: 'var(--color-primary)' }}
+          <div className="grid gap-4 lg:grid-cols-3">
+            {[
+              {
+                name: 'Starter',
+                price: 'Kostenlos',
+                description: 'Für den schnellen täglichen Blick auf den Vertretungsplan.',
+                cta: 'Direkt loslegen',
+                featured: false,
+                items: [
+                  'Vertretungsplan für den aktuellen Tag',
+                  'Klassen-, Raum- und Lehrersuche',
+                  'Stundenplan-Zugangsdaten sicher gespeichert',
+                ],
+              },
+              {
+                name: 'Pro',
+                price: '1,50EUR / Monat',
+                description: 'Für Supporter mit Favoriten, Blacklists und Pro-Status.',
+                cta: 'Monatlich upgraden',
+                featured: true,
+                items: [
+                  'Favoriten und schneller Kontextwechsel',
+                  'Fächer gezielt ausblenden',
+                  'Priorisierter Ausbau weiterer Funktionen',
+                ],
+              },
+              {
+                name: 'Lifetime',
+                price: '15EUR einmalig',
+                description: 'Einmal zahlen, dauerhaft freischalten.',
+                cta: 'Lifetime holen',
+                featured: false,
+                items: [
+                  'Alle Pro-Funktionen inklusive',
+                  'Keine wiederkehrenden Kosten',
+                  'Ideal für regelmäßige Nutzung über mehrere Schuljahre',
+                ],
+              },
+            ].map((plan) => (
+              <div
+                key={plan.name}
+                className="panel relative overflow-visible"
+                style={{
+                  padding: '1.5rem',
+                  background: plan.featured
+                    ? 'linear-gradient(180deg, color-mix(in srgb, var(--color-primary-light) 84%, #fff 16%), var(--color-surface))'
+                    : undefined,
+                }}
+              >
+                {plan.featured && (
+                  <span
+                    className="badge absolute"
+                    style={{ top: '-0.75rem', left: '1.25rem', boxShadow: 'var(--shadow-sm)' }}
                   >
-                    0{index + 1}
-                  </div>
-                  <div className="pt-1 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                    {item}
-                  </div>
+                    <Sparkles className="h-3.5 w-3.5" />
+                    Beliebt
+                  </span>
+                )}
+                <div className="mb-6">
+                  <p className="text-sm font-semibold" style={{ color: 'var(--color-primary)' }}>
+                    {plan.name}
+                  </p>
+                  <h3 className="mt-2 text-3xl font-bold display" style={{ color: 'var(--color-text)' }}>
+                    {plan.price}
+                  </h3>
+                  <p className="mt-3 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                    {plan.description}
+                  </p>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="panel" style={{ padding: '1rem' }}>
-            <AuthFlow key={authMode} defaultMode={authMode} embedded />
+                <ul className="space-y-3">
+                  {plan.items.map((item) => (
+                    <li key={item} className="flex items-start gap-3 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                      <span
+                        className="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full"
+                        style={{ background: 'var(--color-primary-light)', color: 'var(--color-primary)' }}
+                      >
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                      </span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-6 rounded-[18px] border px-4 py-3 text-sm" style={{ borderColor: 'var(--color-border)', background: 'var(--color-surface-raised)', color: 'var(--color-text-muted)' }}>
+                  {plan.cta}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
