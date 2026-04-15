@@ -29,25 +29,40 @@ export default function AuthFlow({ defaultMode = 'signup', embedded = false }: A
     resetErrors();
     setIsBusy(true);
 
+    const callbackURL = `${window.location.origin}/?verified=1`;
+
     const { error } = await authClient.signUp.email({
       email,
       password,
       name,
-      callbackURL: `${window.location.origin}/?verified=1`,
+      callbackURL,
     });
 
-    setIsBusy(false);
-
     if (error) {
+      setIsBusy(false);
       setError(error.message || 'Registrierung fehlgeschlagen.');
       return;
     }
+
+    const verificationResult = await authClient.sendVerificationEmail({
+      email,
+      callbackURL,
+    });
+
+    setIsBusy(false);
 
     setPendingEmail(email);
     setEmail(email);
     setPassword('');
     setMode('signin');
     setShowVerifyPopup(true);
+
+    if (verificationResult.error) {
+      setError(
+        verificationResult.error.message ||
+          'Account erstellt, aber die Bestätigungs-E-Mail konnte nicht automatisch gesendet werden. Bitte klicke auf "Link erneut senden".'
+      );
+    }
   };
 
   const handleSignin = async (e: React.FormEvent) => {
