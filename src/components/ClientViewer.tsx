@@ -9,18 +9,40 @@ import LoginForm from './LoginForm';
 import TimetableHeader from './TimetableHeader';
 import TimetableTable from './TimetableTable';
 import BlacklistModal from './BlacklistModal';
+import WeekTimetableView from './WeekTimetableView';
 
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useFavorites } from '@/lib/hooks/useFavorites';
 import { useTimetable } from '@/lib/hooks/useTimetable';
 import { useAvailableSubjects } from '@/lib/hooks/useAvailableSubjects';
-import { SearchItem, FilterMode } from '@/lib/types';
+import { SearchItem, FilterMode, ViewMode } from '@/lib/types';
+import { addDays, formatDateStr, getTodayStr, getWeekStart, parseDateStr } from '@/lib/date';
 
 interface ClientViewerProps {
   currentDateStr?: string;
+  currentViewMode?: ViewMode;
 }
 
-export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
+function pushDate(router: ReturnType<typeof useRouter>, dateStr: string, viewMode: ViewMode) {
+  router.push(`/?date=${dateStr}&view=${viewMode}`);
+}
+
+function getDayOffsetDate(dateStr: string | undefined, offset: number): string {
+  const base = dateStr ? parseDateStr(dateStr) : new Date();
+  const d = addDays(base, offset);
+
+  if (offset > 0) {
+    if (d.getDay() === 6) d.setDate(d.getDate() + 2);
+    else if (d.getDay() === 0) d.setDate(d.getDate() + 1);
+  } else if (offset < 0) {
+    if (d.getDay() === 0) d.setDate(d.getDate() - 2);
+    else if (d.getDay() === 6) d.setDate(d.getDate() - 1);
+  }
+
+  return formatDateStr(d);
+}
+
+export default function ClientViewer({ currentDateStr, currentViewMode = 'day' }: ClientViewerProps) {
   const router = useRouter();
   const { creds, isLogged, login, logout, isInitialized } = useAuth();
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
@@ -35,8 +57,10 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
     setSelectedValue,
     currentBlacklist,
     addToBlacklist,
-    removeFromBlacklist
-  } = useTimetable(creds, currentDateStr);
+    removeFromBlacklist,
+    filteredDays,
+    refetch,
+  } = useTimetable(creds, currentDateStr, currentViewMode);
 
   const { availableSubjects, isLoadingSubjects } = useAvailableSubjects(
     creds,
@@ -58,6 +82,21 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  useEffect(() => {
+    if (currentViewMode !== 'week') return;
+
+    const previousBodyOverflowX = document.body.style.overflowX;
+    const previousHtmlOverflowX = document.documentElement.style.overflowX;
+
+    document.body.style.overflowX = 'hidden';
+    document.documentElement.style.overflowX = 'hidden';
+
+    return () => {
+      document.body.style.overflowX = previousBodyOverflowX;
+      document.documentElement.style.overflowX = previousHtmlOverflowX;
+    };
+  }, [currentViewMode]);
+
   const handleSelect = (item: SearchItem) => {
     setFilterMode(item.type as FilterMode);
     setSelectedValue(item.name);
@@ -73,35 +112,32 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
   }, [data]);
 
   const navigateDay = (offset: number) => {
-    const base = currentDateStr || new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const d = new Date(
-      parseInt(base.slice(0, 4)),
-      parseInt(base.slice(4, 6)) - 1,
-      parseInt(base.slice(6, 8))
-    );
-    d.setDate(d.getDate() + offset);
+    const nextDate = currentViewMode === 'week'
+      ? formatDateStr(addDays(currentDateStr ? parseDateStr(currentDateStr) : new Date(), offset * 7))
+      : getDayOffsetDate(currentDateStr, offset);
 
-    // Wochenende überspringen
-    if (offset > 0) {
-      if (d.getDay() === 6) d.setDate(d.getDate() + 2); // Samstag zu Montag
-      else if (d.getDay() === 0) d.setDate(d.getDate() + 1); // Sonntag zu Montag
-    } else if (offset < 0) {
-      if (d.getDay() === 0) d.setDate(d.getDate() - 2); // Sonntag zu Freitag
-      else if (d.getDay() === 6) d.setDate(d.getDate() - 1); // Samstag zu Freitag
-    }
-
-    const next = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
-    router.push(`/?date=${next}`);
+    pushDate(router, nextDate, currentViewMode);
   };
 
   if (!isInitialized) return null;
   if (!isLogged) return <LoginForm onLogin={login} />;
 
-  const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-  const isToday = !currentDateStr || currentDateStr === todayStr;
+  const todayStr = getTodayStr();
+  const currentDate = currentDateStr ? parseDateStr(currentDateStr) : new Date();
+  const currentWeekStartStr = formatDateStr(getWeekStart(currentDate));
+  const todayWeekStartStr = formatDateStr(getWeekStart(new Date()));
+  const isToday = currentViewMode === 'week'
+    ? currentWeekStartStr === todayWeekStartStr
+    : !currentDateStr || currentDateStr === todayStr;
 
+  const isWeekData = !!data && 'days' in data;
   const isEmptyDay =
-    data?.isWeekend || (data && data.entries.length === 0 && !data.dayNotes?.length);
+    !isWeekData && (data?.isWeekend || (data && data.entries.length === 0 && !data.dayNotes?.length));
+  const isEmptyWeek =
+    isWeekData &&
+    filteredDays.length > 0 &&
+    filteredDays.every(day => day.filteredEntries.length === 0) &&
+    filteredDays.every(day => !day.dayNotes?.length);
 
   return (
     <div className="w-full">
@@ -120,11 +156,11 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
         currentBlacklist={currentBlacklist}
         addToBlacklist={addToBlacklist}
         removeFromBlacklist={removeFromBlacklist}
-      />
+        />
 
-      {/* Main card */}
-      <div className="panel panel-flat">
-        <TimetableHeader
+        {/* Main card */}
+        <div className="panel panel-flat">
+          <TimetableHeader
           isLoading={isLoading}
           dateText={data?.date}
           onNavigate={navigateDay}
@@ -136,6 +172,15 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
           onToggleFavorite={() => toggleFavorite(filterMode, selectedValue)}
           favorites={favorites}
           isToday={isToday}
+          viewMode={currentViewMode}
+          onChangeViewMode={(mode) => {
+            const nextDate = currentDateStr || todayStr;
+            pushDate(router, nextDate, mode);
+          }}
+          onToday={() => {
+            const today = getTodayStr();
+            pushDate(router, today, currentViewMode);
+          }}
           onSelectFavorite={(mode, value) => {
             setFilterMode(mode);
             setSelectedValue(value);
@@ -184,7 +229,7 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
                 </p>
               </div>
               <button
-                onClick={() => router.push('/')}
+                onClick={() => refetch()}
                 className="btn btn-primary text-sm"
                 style={{ padding: '0.75rem 1.5rem' }}
               >
@@ -221,7 +266,38 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
                 </p>
               </div>
               <button
-                onClick={() => router.push('/')}
+                onClick={() => refetch()}
+                className="btn btn-outline text-sm"
+                style={{ padding: '0.625rem 1.25rem' }}
+              >
+                <RefreshCw className="w-3.5 h-3.5" strokeWidth={2} />
+                Aktualisieren
+              </button>
+            </div>
+          ) : isEmptyWeek ? (
+            <div className="flex flex-col items-center justify-center py-20 px-6 gap-5 text-center">
+              <div
+                className="flex items-center justify-center"
+                style={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: '50%',
+                  background: 'var(--color-primary-light)',
+                  color: 'var(--color-primary)',
+                }}
+              >
+                <Calendar className="w-7 h-7" strokeWidth={1.75} />
+              </div>
+              <div>
+                <p className="text-base font-semibold mb-1" style={{ color: 'var(--color-text)' }}>
+                  Keine Einträge in dieser Woche
+                </p>
+                <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                  Für die aktuelle Auswahl gibt es in dieser Woche keine passenden Vertretungen.
+                </p>
+              </div>
+              <button
+                onClick={() => refetch()}
                 className="btn btn-outline text-sm"
                 style={{ padding: '0.625rem 1.25rem' }}
               >
@@ -230,15 +306,22 @@ export default function ClientViewer({ currentDateStr }: ClientViewerProps) {
               </button>
             </div>
           ) : data ? (
-            <TimetableTable
-              entries={filteredEntries}
-              showClassColumn={filterMode !== 'class'}
-            />
+            currentViewMode === 'week' && isWeekData ? (
+              <WeekTimetableView
+                days={filteredDays}
+                showClassColumn={filterMode !== 'class'}
+              />
+            ) : (
+              <TimetableTable
+                entries={filteredEntries}
+                showClassColumn={filterMode !== 'class'}
+              />
+            )
           ) : null}
         </div>
 
         {/* Day notes */}
-        {data?.dayNotes && data.dayNotes.length > 0 && (
+        {!isWeekData && data?.dayNotes && data.dayNotes.length > 0 && (
           <div className="day-notes">
             <div
               className="flex items-center gap-2 mb-3"

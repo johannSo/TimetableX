@@ -1,13 +1,48 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Credentials, TimetableData, FilterMode, TimetableEntry } from '@/lib/types';
+import {
+  Credentials,
+  TimetableEntry,
+  TimetableResponse,
+  FilterMode,
+  ViewMode,
+} from '@/lib/types';
 import { useMemo, useState, useEffect } from 'react';
 import { useBlacklist } from './useBlacklist';
 
 const FETCH_KEY = 'timetable';
 
-export function useTimetable(creds: Credentials | null, date?: string) {
+function getAvailableValues(data: TimetableResponse | undefined, filterMode: FilterMode): string[] {
+  if (!data) return [];
+  if (filterMode === 'class') return data.availableClasses;
+  if (filterMode === 'room') return data.availableRooms;
+  return data.availableTeachers;
+}
+
+function filterEntries(
+  entries: TimetableEntry[],
+  filterMode: FilterMode,
+  selectedValue: string,
+  blacklist: string[]
+): TimetableEntry[] {
+  if (!selectedValue) return [];
+
+  const filtered = entries.filter(e => {
+    let isMatch = false;
+    if (filterMode === 'class') isMatch = e.class === selectedValue;
+    else if (filterMode === 'room') isMatch = e.room === selectedValue;
+    else if (filterMode === 'teacher') isMatch = e.teacher === selectedValue;
+
+    if (!isMatch) return false;
+    if (blacklist.includes(e.subject)) return false;
+    return true;
+  });
+
+  return [...filtered].sort((a, b) => (parseInt(a.hour) || 0) - (parseInt(b.hour) || 0));
+}
+
+export function useTimetable(creds: Credentials | null, date?: string, view: ViewMode = 'day') {
   const [filterMode, setFilterMode] = useState<FilterMode>(() => {
     if (typeof window !== 'undefined') {
       return (localStorage.getItem('filterMode') as FilterMode) || 'class';
@@ -24,14 +59,14 @@ export function useTimetable(creds: Credentials | null, date?: string) {
 
   const { currentBlacklist, addToBlacklist, removeFromBlacklist } = useBlacklist(selectedValue);
 
-  const { data, error, isLoading, isFetching, refetch } = useQuery<TimetableData, Error>({
-    queryKey: [FETCH_KEY, creds?.school, creds?.user, date],
+  const { data, error, isLoading, isFetching, refetch } = useQuery<TimetableResponse, Error>({
+    queryKey: [FETCH_KEY, creds?.school, creds?.user, date, view],
     queryFn: async () => {
       if (!creds) throw new Error('No credentials');
       const res = await fetch('/api/stundenplan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...creds, date }),
+        body: JSON.stringify({ ...creds, date, view }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Fehler beim Laden der Daten.');
@@ -43,11 +78,11 @@ export function useTimetable(creds: Credentials | null, date?: string) {
   // Automatically select first available value if none selected or current not available
   useEffect(() => {
     if (data) {
-      const options = filterMode === 'class' ? data.availableClasses : 
-                      filterMode === 'room' ? data.availableRooms : 
-                      data.availableTeachers;
+      const options = getAvailableValues(data, filterMode);
       
       if (!selectedValue && options.length > 0) {
+        setSelectedValue(options[0]);
+      } else if (selectedValue && !options.includes(selectedValue) && options.length > 0) {
         setSelectedValue(options[0]);
       }
     }
@@ -60,20 +95,17 @@ export function useTimetable(creds: Credentials | null, date?: string) {
   }, [filterMode, selectedValue]);
 
   const filteredEntries = useMemo(() => {
-    if (!data || !selectedValue) return [];
-    
-    const filtered = data.entries.filter(e => {
-      let isMatch = false;
-      if (filterMode === 'class') isMatch = e.class === selectedValue;
-      else if (filterMode === 'room') isMatch = e.room === selectedValue;
-      else if (filterMode === 'teacher') isMatch = e.teacher === selectedValue;
-      
-      if (!isMatch) return false;
-      if (currentBlacklist.includes(e.subject)) return false;
-      return true;
-    });
+    if (!data || !('entries' in data)) return [];
+    return filterEntries(data.entries, filterMode, selectedValue, currentBlacklist);
+  }, [data, filterMode, selectedValue, currentBlacklist]);
 
-    return [...filtered].sort((a, b) => (parseInt(a.hour) || 0) - (parseInt(b.hour) || 0));
+  const filteredDays = useMemo(() => {
+    if (!data || !('days' in data)) return [];
+
+    return data.days.map(day => ({
+      ...day,
+      filteredEntries: filterEntries(day.entries, filterMode, selectedValue, currentBlacklist),
+    }));
   }, [data, filterMode, selectedValue, currentBlacklist]);
 
   return {
@@ -88,6 +120,7 @@ export function useTimetable(creds: Credentials | null, date?: string) {
     refetch,
     currentBlacklist,
     addToBlacklist,
-    removeFromBlacklist
+    removeFromBlacklist,
+    filteredDays,
   };
 }

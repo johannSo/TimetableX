@@ -6,6 +6,7 @@ import { CheckCircle2, XCircle } from 'lucide-react';
 interface TimetableTableProps {
   entries: TimetableEntry[];
   showClassColumn: boolean;
+  compact?: boolean;
 }
 
 function isCancelledEntry(entry: TimetableEntry): boolean {
@@ -33,7 +34,7 @@ function changeFlags(infoRaw: string) {
   return { room, teacher, hour, class: className, subject };
 }
 
-export default function TimetableTable({ entries, showClassColumn }: TimetableTableProps) {
+export default function TimetableTable({ entries, showClassColumn, compact = false }: TimetableTableProps) {
   if (entries.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
@@ -62,10 +63,13 @@ export default function TimetableTable({ entries, showClassColumn }: TimetableTa
   }
 
   return (
-    <div className="overflow-x-auto table-wrap">
+    <div className={compact ? 'overflow-hidden table-wrap' : 'overflow-x-auto table-wrap'}>
       <table
         className="w-full"
-        style={{ borderCollapse: 'collapse' }}
+        style={{
+          borderCollapse: 'collapse',
+          tableLayout: compact ? 'fixed' : 'auto',
+        }}
         role="table"
         aria-label="Vertretungsplan"
       >
@@ -109,9 +113,9 @@ export default function TimetableTable({ entries, showClassColumn }: TimetableTa
                 <td
                   className="text-center font-bold text-base"
                   style={{
-                    padding: '1rem 0.75rem 1rem 1.25rem',
+                    padding: compact ? '0.75rem 0.5rem 0.75rem 0.75rem' : '1rem 0.75rem 1rem 1.25rem',
                     color: cancelled || hourChanged ? redColor : 'var(--color-text)',
-                    width: 52,
+                    width: compact ? 38 : 52,
                     whiteSpace: 'nowrap',
                   }}
                 >
@@ -121,8 +125,8 @@ export default function TimetableTable({ entries, showClassColumn }: TimetableTa
                 {/* Subject */}
                 <td
                   style={{
-                    padding: '1rem 1rem',
-                    minWidth: 100,
+                    padding: compact ? '0.75rem 0.6rem' : '1rem 1rem',
+                    minWidth: compact ? 0 : 100,
                   }}
                 >
                   <div className="flex items-center gap-2">
@@ -135,7 +139,7 @@ export default function TimetableTable({ entries, showClassColumn }: TimetableTa
                       />
                     )}
                     <span
-                      className="font-semibold text-base"
+                      className={`font-semibold ${compact ? 'text-sm leading-snug break-words' : 'text-base'}`}
                       style={{
                         color: cancelled || subjectChanged ? redColor : 'var(--color-text)',
                         textDecorationLine: cancelled ? 'line-through' : 'none',
@@ -150,11 +154,11 @@ export default function TimetableTable({ entries, showClassColumn }: TimetableTa
                 {/* Class (conditional) */}
                 {showClassColumn && (
                   <td
-                    className="text-sm font-medium"
+                    className={`font-medium ${compact ? 'text-xs leading-snug break-words' : 'text-sm'}`}
                     style={{
-                      padding: '1rem 1rem',
+                      padding: compact ? '0.75rem 0.6rem' : '1rem 1rem',
                       color: cancelled || classChanged ? redColor : 'var(--color-text-secondary)',
-                      whiteSpace: 'nowrap',
+                      whiteSpace: compact ? 'normal' : 'nowrap',
                     }}
                   >
                     {e.class}
@@ -163,11 +167,11 @@ export default function TimetableTable({ entries, showClassColumn }: TimetableTa
 
                 {/* Teacher */}
                 <td
-                  className="text-sm font-medium"
+                  className={`font-medium ${compact ? 'text-xs leading-snug break-words' : 'text-sm'}`}
                   style={{
-                    padding: '1rem 1rem',
+                    padding: compact ? '0.75rem 0.6rem' : '1rem 1rem',
                     color: cancelled || teacherChanged ? redColor : 'var(--color-text-secondary)',
-                    whiteSpace: 'nowrap',
+                    whiteSpace: compact ? 'normal' : 'nowrap',
                   }}
                 >
                   {e.teacher}
@@ -175,10 +179,10 @@ export default function TimetableTable({ entries, showClassColumn }: TimetableTa
 
                 {/* Room */}
                 <td
-                  className="text-sm font-semibold"
+                  className={`font-semibold ${compact ? 'text-xs leading-snug' : 'text-sm'}`}
                   style={{
-                    padding: '1rem 1rem',
-                    whiteSpace: 'nowrap',
+                    padding: compact ? '0.75rem 0.6rem' : '1rem 1rem',
+                    whiteSpace: compact ? 'normal' : 'nowrap',
                   }}
                 >
                   <span
@@ -195,12 +199,13 @@ export default function TimetableTable({ entries, showClassColumn }: TimetableTa
 
                 {/* Info */}
                 <td
-                  className="text-sm"
+                  className={compact ? 'text-xs' : 'text-sm'}
                   style={{
-                    padding: '1rem 1.25rem 1rem 0.75rem',
+                    padding: compact ? '0.75rem 0.6rem 0.75rem 0.4rem' : '1rem 1.25rem 1rem 0.75rem',
                     color: cancelled ? redColor : 'var(--color-text-secondary)',
                     fontStyle: e.info && e.info !== '---' ? 'normal' : 'italic',
-                    maxWidth: 260,
+                    maxWidth: compact ? 'none' : 260,
+                    whiteSpace: compact ? 'normal' : 'nowrap',
                   }}
                 >
                   {e.info || ''}
@@ -213,5 +218,4 @@ export default function TimetableTable({ entries, showClassColumn }: TimetableTa
     </div>
   );
 }
-
 

@@ -1,4 +1,4 @@
-import { fetchStundenplan } from '@/lib/stundenplan';
+import { fetchStundenplan, fetchWeekStundenplan } from '@/lib/stundenplan';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -7,6 +7,7 @@ const RequestSchema = z.object({
   user: z.string().min(1, 'Benutzername fehlt.'),
   pass: z.string().min(1, 'Passwort fehlt.'),
   date: z.string().optional(),
+  view: z.enum(['day', 'week']).optional(),
 });
 
 export async function POST(request: Request) {
@@ -20,8 +21,10 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    const { school, user, pass, date } = result.data;
-    const data = await fetchStundenplan(school, user, pass, date);
+    const { school, user, pass, date, view } = result.data;
+    const data = view === 'week'
+      ? await fetchWeekStundenplan(school, user, pass, date)
+      : await fetchStundenplan(school, user, pass, date);
     
     return NextResponse.json(data);
   } catch (e: any) {

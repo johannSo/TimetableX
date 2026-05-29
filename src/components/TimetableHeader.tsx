@@ -14,8 +14,7 @@ import {
   CalendarDays,
   ShieldBan,
 } from 'lucide-react';
-import { Favorite, FilterMode } from '@/lib/types';
-import { useRouter } from 'next/navigation';
+import { Favorite, FilterMode, ViewMode } from '@/lib/types';
 
 interface TimetableHeaderProps {
   isLoading: boolean;
@@ -29,6 +28,9 @@ interface TimetableHeaderProps {
   onToggleFavorite: () => void;
   favorites: Favorite[];
   isToday: boolean;
+  viewMode: ViewMode;
+  onChangeViewMode: (mode: ViewMode) => void;
+  onToday: () => void;
   onSelectFavorite: (mode: FilterMode, value: string) => void;
   onOpenBlacklist: () => void;
 }
@@ -58,11 +60,14 @@ export default function TimetableHeader({
   onToggleFavorite,
   favorites,
   isToday,
+  viewMode,
+  onChangeViewMode,
+  onToday,
   onSelectFavorite,
   onOpenBlacklist,
 }: TimetableHeaderProps) {
-  const router = useRouter();
   const cleanDate = dateText ? dateText.replace(/\s*\(Aktualisiert:.*\)\s*$/u, '') : '';
+  const navigateLabel = viewMode === 'week' ? 'Woche' : 'Tag';
 
   return (
     <div className="border-b" style={{ borderColor: 'var(--color-border)', background: 'var(--color-surface)' }}>
@@ -105,18 +110,37 @@ export default function TimetableHeader({
 
         {/* Controls */}
         <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
+          {/* View switch */}
+          <div className="flex items-center gap-1 p-1 rounded-[var(--radius-md)] border"
+               style={{ borderColor: 'var(--color-border)', background: 'var(--color-surface-raised)' }}>
+            <button
+              onClick={() => onChangeViewMode('day')}
+              className={`btn text-sm ${viewMode === 'day' ? 'btn-primary' : 'btn-ghost'}`}
+              style={{ height: 48, padding: '0 0.9rem' }}
+            >
+              Tag
+            </button>
+            <button
+              onClick={() => onChangeViewMode('week')}
+              className={`btn text-sm ${viewMode === 'week' ? 'btn-primary' : 'btn-ghost'}`}
+              style={{ height: 48, padding: '0 0.9rem' }}
+            >
+              Woche
+            </button>
+          </div>
+
           {/* Day navigation */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => onNavigate(-1)}
-              aria-label="Vorheriger Tag"
+              aria-label={`Vorherige ${navigateLabel}`}
               className="icon-btn"
             >
               <ChevronLeft className="w-5 h-5" strokeWidth={2} />
             </button>
 
             <button
-              onClick={() => router.push('/')}
+              onClick={onToday}
               aria-label="Heute"
               className={`btn ${isToday ? 'btn-primary' : 'btn-ghost'} text-sm`}
               style={{ height: 48, padding: '0 0.9rem' }}
@@ -126,7 +150,7 @@ export default function TimetableHeader({
 
             <button
               onClick={() => onNavigate(1)}
-              aria-label="Nächster Tag"
+              aria-label={`Nächste ${navigateLabel}`}
               className="icon-btn"
             >
               <ChevronRight className="w-5 h-5" strokeWidth={2} />

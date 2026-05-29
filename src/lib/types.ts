@@ -1,4 +1,5 @@
 export type FilterMode = 'class' | 'room' | 'teacher';
+export type ViewMode = 'day' | 'week';
 
 export interface TimetableEntry {
   class: string;
@@ -24,6 +25,21 @@ export interface TimetableData {
   dayNotes?: string[];
   isWeekend?: boolean;
 }
+
+export interface TimetableDayData extends TimetableData {}
+
+export interface TimetableWeekData {
+  title: string;
+  date: string;
+  currentDateStr: string;
+  weekStartStr: string;
+  days: TimetableDayData[];
+  availableClasses: string[];
+  availableRooms: string[];
+  availableTeachers: string[];
+}
+
+export type TimetableResponse = TimetableData | TimetableWeekData;
 
 export interface Favorite {
   mode: FilterMode;
