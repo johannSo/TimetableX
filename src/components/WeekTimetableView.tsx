@@ -37,7 +37,7 @@ export default function WeekTimetableView({ days, showClassColumn }: WeekTimetab
 
   return (
     <div
-      className="overflow-x-auto overflow-y-visible p-4 sm:p-5 snap-x snap-mandatory scroll-smooth"
+      className="overflow-x-auto overflow-y-visible p-4 sm:p-5 snap-x snap-mandatory scroll-smooth lg:snap-none lg:scroll-auto"
       style={{
         overscrollBehaviorX: 'contain',
         overscrollBehaviorY: 'auto',
@@ -54,7 +54,7 @@ export default function WeekTimetableView({ days, showClassColumn }: WeekTimetab
           return (
             <section
             key={`${day.date}-${index}`}
-            className="week-day-card panel-muted overflow-hidden shrink-0 snap-start"
+            className="week-day-card panel-muted overflow-hidden shrink-0 snap-start lg:snap-none"
             style={{
               width: 'min(82vw, 24rem)',
               minWidth: '18rem',
@@ -86,46 +86,16 @@ export default function WeekTimetableView({ days, showClassColumn }: WeekTimetab
                   </p>
                 </div>
 
-                <div
-                  className="flex items-center gap-2 text-xs font-semibold px-2.5 py-1 rounded-full shrink-0"
-                  style={{
-                    background: hasEntries ? 'var(--color-primary-light)' : 'var(--color-success-bg)',
-                    color: hasEntries ? 'var(--color-primary)' : 'var(--color-success)',
-                    border: `1px solid ${hasEntries ? 'var(--color-primary-border)' : 'var(--color-success-border)'}`,
-                  }}
-                >
-                  {hasEntries ? 'Aktiv' : 'Frei'}
-                </div>
               </div>
 
-              {hasNotes && (
-                <div className="day-notes">
-                  <div className="flex items-center gap-2 mb-3" style={{ color: 'var(--color-warning)' }}>
-                    <AlertCircle className="w-4 h-4 flex-shrink-0" strokeWidth={2} />
-                    <span className="text-sm font-semibold">Hinweise</span>
-                  </div>
-                  <div className="space-y-1.5">
-                    {day.dayNotes!.map((note, noteIndex) => (
-                      <p
-                        key={noteIndex}
-                        className="text-sm leading-relaxed"
-                        style={{ color: 'var(--color-text)' }}
-                      >
-                        {note}
-                      </p>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-                <div className="overflow-hidden">
-                  {hasEntries ? (
+              <div className="overflow-hidden">
+                {hasEntries ? (
                   <TimetableTable
                     entries={day.filteredEntries}
                     showClassColumn={showClassColumn}
                     compact
                   />
-                  ) : (
+                ) : (
                   <div className="flex flex-col items-center justify-center py-12 px-6 gap-3 text-center">
                     <div
                       className="flex items-center justify-center"
@@ -150,6 +120,26 @@ export default function WeekTimetableView({ days, showClassColumn }: WeekTimetab
                   </div>
                 )}
               </div>
+
+              {hasNotes && (
+                <div className="day-notes">
+                  <div className="flex items-center gap-2 mb-3" style={{ color: 'var(--color-warning)' }}>
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" strokeWidth={2} />
+                    <span className="text-sm font-semibold">Hinweise</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {day.dayNotes!.map((note, noteIndex) => (
+                      <p
+                        key={noteIndex}
+                        className="text-sm leading-relaxed"
+                        style={{ color: 'var(--color-text)' }}
+                      >
+                        {note}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              )}
             </section>
           );
         })}

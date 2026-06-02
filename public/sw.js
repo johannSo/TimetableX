@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vpmobil25-v1';
+const CACHE_NAME = 'timetablex-v1';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

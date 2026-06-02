@@ -45,5 +45,7 @@ export function formatDayLabel(date: Date): string {
 }
 
 export function formatWeekLabel(startDate: Date, endDate: Date): string {
-  return `Woche vom ${formatDayLabel(startDate)} bis ${formatDayLabel(endDate)}`;
+  const start = `${startDate.getDate()}.${startDate.getMonth() + 1}`;
+  const end = `${endDate.getDate()}.${endDate.getMonth() + 1}`;
+  return `Woche vom ${start} - ${end}`;
 }
