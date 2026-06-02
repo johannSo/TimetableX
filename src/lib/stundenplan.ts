@@ -1,19 +1,11 @@
 import { parseStringPromise } from 'xml2js';
-import { TimetableData, TimetableEntry } from './types';
+import { formatDateStr, formatDayLabel, formatWeekLabel, getWeekDates, parseDateStr } from './date';
+import { TimetableData, TimetableDayData, TimetableEntry, TimetableWeekData } from './types';
 
 const FALLBACK_VALUE = '---';
 
 function getFallbackDate(dateStr: string): string {
-  const y = parseInt(dateStr.slice(0, 4));
-  const m = parseInt(dateStr.slice(4, 6)) - 1;
-  const d = parseInt(dateStr.slice(6, 8));
-  const date = new Date(y, m, d);
-  return date.toLocaleDateString('de-DE', { 
-    weekday: 'long', 
-    day: '2-digit', 
-    month: 'long', 
-    year: 'numeric' 
-  });
+  return formatDayLabel(parseDateStr(dateStr));
 }
 
 function cleanValue(val: any): string {
@@ -88,7 +80,7 @@ export const SAMPLE_DATA: TimetableData = {
   currentDateStr: '20260330'
 };
 
-export async function fetchStundenplan(
+async function fetchDayTimetable(
   school: string,
   user: string,
   pass: string,
@@ -100,8 +92,7 @@ export async function fetchStundenplan(
 
   let targetDateStr = dateStr;
   if (!targetDateStr) {
-    const now = new Date();
-    targetDateStr = now.toISOString().split('T')[0].replace(/-/g, '');
+    targetDateStr = formatDateStr(new Date());
   }
   
   const url = `https://www.stundenplan24.de/${school}/wplan/wdatenk/WPlanKl_${targetDateStr}.xml`;
@@ -205,4 +196,75 @@ export async function fetchStundenplan(
     }
     throw error;
   }
+}
+
+export async function fetchStundenplan(
+  school: string,
+  user: string,
+  pass: string,
+  dateStr?: string
+): Promise<TimetableData> {
+  return fetchDayTimetable(school, user, pass, dateStr);
+}
+
+export async function fetchWeekStundenplan(
+  school: string,
+  user: string,
+  pass: string,
+  dateStr?: string
+): Promise<TimetableWeekData> {
+  const anchorDate = dateStr ? parseDateStr(dateStr) : new Date();
+  const weekDates = getWeekDates(anchorDate);
+  const weekStart = weekDates[0];
+  const weekEnd = weekDates[weekDates.length - 1];
+  const weekDateStrs = weekDates.map(formatDateStr);
+
+  const settled = await Promise.allSettled(
+    weekDateStrs.map(date => fetchDayTimetable(school, user, pass, date))
+  );
+
+  const days: TimetableDayData[] = settled.map((result, index) => {
+    const date = weekDates[index];
+    const dateStr = weekDateStrs[index];
+
+    if (result.status === 'fulfilled') {
+      return result.value;
+    }
+
+    if (result.reason?.message?.includes('Ungültig')) {
+      throw result.reason;
+    }
+
+    return {
+      title: 'Stundenplan',
+      date: getFallbackDate(dateStr),
+      entries: [],
+      availableClasses: [],
+      availableRooms: [],
+      availableTeachers: [],
+      currentDateStr: dateStr,
+      isWeekend: date.getDay() === 0 || date.getDay() === 6,
+    };
+  });
+
+  const availableClasses = new Set<string>();
+  const availableRooms = new Set<string>();
+  const availableTeachers = new Set<string>();
+
+  days.forEach(day => {
+    day.availableClasses.forEach(value => availableClasses.add(value));
+    day.availableRooms.forEach(value => availableRooms.add(value));
+    day.availableTeachers.forEach(value => availableTeachers.add(value));
+  });
+
+  return {
+    title: 'Stundenplan',
+    date: formatWeekLabel(weekStart, weekEnd),
+    currentDateStr: formatDateStr(anchorDate),
+    weekStartStr: formatDateStr(weekStart),
+    days,
+    availableClasses: Array.from(availableClasses).sort(),
+    availableRooms: Array.from(availableRooms).sort(),
+    availableTeachers: Array.from(availableTeachers).sort(),
+  };
 }

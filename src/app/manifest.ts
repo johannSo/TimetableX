@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'VPMobil25',
-    short_name: 'VPMobil25',
+    name: 'TimetableX',
+    short_name: 'TimetableX',
     description: 'The better version of VPMobil24',
     start_url: '/',
     scope: '/',

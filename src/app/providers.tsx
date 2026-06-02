@@ -2,17 +2,21 @@
 
 import { usePathname, useSearchParams } from "next/navigation"
 import { useEffect, Suspense, useState } from "react"
+import type { ReactNode } from "react"
 import posthog from 'posthog-js'
 import { PostHogProvider as PHProvider } from 'posthog-js/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import HapticsProvider from '@/components/HapticsProvider'
+import CookieConsentBanner from '@/components/CookieConsentBanner'
+import { readTrackingConsent, writeTrackingConsent, type TrackingConsent } from '@/lib/trackingConsent'
 
-function PostHogPageView() {
+function PostHogPageView({ enabled }: { enabled: boolean }) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
   useEffect(() => {
-    if (pathname && posthog && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+    if (!enabled) return
+    if (pathname && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
       let url = window.origin + pathname
       if (searchParams.toString()) {
         url = url + `?${searchParams.toString()}`
@@ -21,12 +25,12 @@ function PostHogPageView() {
         $current_url: url,
       })
     }
-  }, [pathname, searchParams])
+  }, [enabled, pathname, searchParams])
 
   return null
 }
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {
@@ -35,26 +39,63 @@ export function Providers({ children }: { children: React.ReactNode }) {
       },
     },
   }));
+  const [trackingConsent, setTrackingConsent] = useState<TrackingConsent>("pending");
+  const [hasInitializedPostHog, setHasInitializedPostHog] = useState(false);
+  const [isConsentLoaded, setIsConsentLoaded] = useState(false);
+
+  useEffect(() => {
+    setTrackingConsent(readTrackingConsent());
+    setIsConsentLoaded(true);
+  }, []);
 
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
-    if (key) {
-      posthog.init(key, {
-        api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://z.timetablex.space",
-        person_profiles: 'always',
-        capture_pageview: false 
-      })
+
+    if (trackingConsent === "accepted") {
+      posthog.opt_in_capturing();
+
+      if (key && !hasInitializedPostHog) {
+        posthog.init(key, {
+          api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://z.timetablex.space",
+          person_profiles: 'always',
+          capture_pageview: false
+        })
+        setHasInitializedPostHog(true);
+      }
     }
-  }, [])
+
+    if (trackingConsent === "rejected") {
+      posthog.opt_out_capturing();
+      posthog.reset();
+    }
+  }, [hasInitializedPostHog, trackingConsent]);
+
+  const handleAcceptTracking = () => {
+    writeTrackingConsent("accepted");
+    setTrackingConsent("accepted");
+  };
+
+  const handleRejectTracking = () => {
+    writeTrackingConsent("rejected");
+    setTrackingConsent("rejected");
+  };
+
+  const shouldShowBanner = isConsentLoaded && trackingConsent === "pending";
 
   return (
     <QueryClientProvider client={queryClient}>
       <PHProvider client={posthog}>
         <Suspense fallback={null}>
-          <PostHogPageView />
+          <PostHogPageView enabled={trackingConsent === "accepted" && hasInitializedPostHog} />
         </Suspense>
         <HapticsProvider />
         {children}
+        {shouldShowBanner ? (
+          <CookieConsentBanner
+            onAccept={handleAcceptTracking}
+            onReject={handleRejectTracking}
+          />
+        ) : null}
       </PHProvider>
     </QueryClientProvider>
   )
