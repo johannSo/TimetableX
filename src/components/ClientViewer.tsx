@@ -17,6 +17,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { useFavorites } from '@/lib/hooks/useFavorites';
 import { useTimetable } from '@/lib/hooks/useTimetable';
 import { useAvailableSubjects } from '@/lib/hooks/useAvailableSubjects';
+import { useExtendedEntities } from '@/lib/hooks/useExtendedEntities';
 import { SearchItem, FilterMode, ViewMode } from '@/lib/types';
 import { addDays, formatDateStr, getTodayStr, getWeekStart, parseDateStr } from '@/lib/date';
 
@@ -85,6 +86,8 @@ export default function ClientViewer({ currentDateStr, currentViewMode = 'day', 
     selectedValue
   );
 
+  const { extendedClasses, extendedRooms, extendedTeachers } = useExtendedEntities(creds);
+
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [isBlacklistOpen, setIsBlacklistOpen] = useState(false);
 
@@ -105,13 +108,20 @@ export default function ClientViewer({ currentDateStr, currentViewMode = 'day', 
   };
 
   const searchItems = useMemo(() => {
-    if (!data) return [];
+    const currentClasses  = data?.availableClasses ?? [];
+    const currentRooms    = data?.availableRooms ?? [];
+    const currentTeachers = data?.availableTeachers ?? [];
+
+    const allClasses  = [...new Set([...currentClasses,  ...extendedClasses])].sort();
+    const allRooms    = [...new Set([...currentRooms,    ...extendedRooms])].sort();
+    const allTeachers = [...new Set([...currentTeachers, ...extendedTeachers])].sort();
+
     const items: SearchItem[] = [];
-    data.availableClasses.forEach(c => items.push({ id: c, name: c, type: 'class' }));
-    data.availableRooms.forEach(r => items.push({ id: r, name: r, type: 'room' }));
-    data.availableTeachers.forEach(t => items.push({ id: t, name: t, type: 'teacher' }));
+    allClasses.forEach(c => items.push({ id: c, name: c, type: 'class' }));
+    allRooms.forEach(r => items.push({ id: r, name: r, type: 'room' }));
+    allTeachers.forEach(t => items.push({ id: t, name: t, type: 'teacher' }));
     return items;
-  }, [data]);
+  }, [data, extendedClasses, extendedRooms, extendedTeachers]);
 
   const navigateDay = (offset: number) => {
     const nextDate = currentViewMode === 'week'
