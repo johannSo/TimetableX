@@ -143,6 +143,11 @@ body {
   overflow-y: auto;
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+#scroll-root::-webkit-scrollbar {
+  display: none;
 }
 
 h1, h2, h3, .display {
