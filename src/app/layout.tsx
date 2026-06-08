@@ -31,8 +31,10 @@ export default function RootLayout({
   return (
     <html lang="de">
       <body className="antialiased">
-        <BackgroundField />
-        <Providers>{children}</Providers>
+        <div id="scroll-root">
+          <BackgroundField />
+          <Providers>{children}</Providers>
+        </div>
         <script
           dangerouslySetInnerHTML={{
             __html: `
