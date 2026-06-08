@@ -39,7 +39,7 @@ export default function WeekTimetableView({ days, showClassColumn }: WeekTimetab
     <div
       className="overflow-x-auto overflow-y-visible p-4 sm:p-5 snap-x snap-mandatory scroll-smooth lg:snap-none lg:scroll-auto"
       style={{
-        overscrollBehaviorX: 'contain',
+        overscrollBehaviorX: 'none',
         overscrollBehaviorY: 'auto',
         WebkitOverflowScrolling: 'touch',
         scrollPaddingInline: '1rem',

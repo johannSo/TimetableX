@@ -1,8 +1,8 @@
-// File: /home/me/Downloads/Timetablex-webui/src/app/page.tsx
+// File: /home/joni/timetablex-webui/src/app/page.tsx
 import * as entry from '../../../../src/app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
-import type { PrefetchForTypeCheckInternal } from 'next/dist/build/segment-config/app/app-segment-config.js'
+import type { InstantConfigForTypeCheckInternal } from 'next/dist/build/segment-config/app/app-segment-config.js'
 
 type TEntry = typeof import('../../../../src/app/page.js')
 
@@ -15,7 +15,8 @@ checkFields<Diff<{
   default: Function
   config?: {}
   generateStaticParams?: Function
-  unstable_prefetch?: PrefetchForTypeCheckInternal
+  unstable_instant?: InstantConfigForTypeCheckInternal
+  unstable_dynamicStaleTime?: number
   revalidate?: RevalidateRange<TEntry> | false
   dynamic?: 'auto' | 'force-dynamic' | 'error' | 'force-static'
   dynamicParams?: boolean

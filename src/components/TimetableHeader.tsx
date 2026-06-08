@@ -60,7 +60,7 @@ export default function TimetableHeader({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
+        <div className="flex flex-wrap items-center gap-2 justify-between sm:flex-nowrap sm:justify-start w-full sm:w-auto">
           <div className="flex items-center gap-1 p-1 rounded-[var(--radius-md)] border"
                style={{ borderColor: 'var(--color-border)', background: 'var(--color-surface-raised)' }}>
             <button
@@ -79,7 +79,7 @@ export default function TimetableHeader({
             </button>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center sm:justify-start gap-2 w-full sm:w-auto">
             <button
               onClick={() => onNavigate(-1)}
               aria-label={`Vorherige ${navigateLabel}`}
