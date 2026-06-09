@@ -8,8 +8,9 @@ import {
   FilterMode,
   ViewMode,
 } from '@/lib/types';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { useBlacklist } from './useBlacklist';
+import { track } from '@/lib/analytics';
 
 const FETCH_KEY = 'timetable';
 
@@ -43,12 +44,17 @@ function filterEntries(
 }
 
 export function useTimetable(creds: Credentials | null, date?: string, view: ViewMode = 'day') {
-  const [filterMode, setFilterMode] = useState<FilterMode>(() => {
+  const [filterMode, setFilterModeRaw] = useState<FilterMode>(() => {
     if (typeof window !== 'undefined') {
       return (localStorage.getItem('filterMode') as FilterMode) || 'class';
     }
     return 'class';
   });
+
+  const setFilterMode = useCallback((mode: FilterMode) => {
+    track('filter_mode_changed', { mode });
+    setFilterModeRaw(mode);
+  }, []);
   
   const [selectedValue, setSelectedValue] = useState<string>(() => {
     if (typeof window !== 'undefined') {
@@ -74,6 +80,10 @@ export function useTimetable(creds: Credentials | null, date?: string, view: Vie
     },
     enabled: !!creds,
   });
+
+  useEffect(() => {
+    if (error) track('timetable_fetch_error', { message: error.message });
+  }, [error]);
 
   // Automatically select first available value if none selected or current not available
   useEffect(() => {

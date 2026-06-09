@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Credentials } from '@/lib/types';
+import { track } from '@/lib/analytics';
 
 const STORAGE_KEY = 'school_creds';
 
@@ -29,12 +30,14 @@ export function useAuth() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newCreds));
     setCreds(newCreds);
     setIsLogged(true);
+    track('user_logged_in', { school: newCreds.school });
   };
 
   const logout = () => {
     localStorage.removeItem(STORAGE_KEY);
     setCreds(null);
     setIsLogged(false);
+    track('user_logged_out');
   };
 
   return { creds, isLogged, login, logout, isInitialized };

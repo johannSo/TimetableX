@@ -20,6 +20,7 @@ import { useAvailableSubjects } from '@/lib/hooks/useAvailableSubjects';
 import { useExtendedEntities } from '@/lib/hooks/useExtendedEntities';
 import { SearchItem, FilterMode, ViewMode } from '@/lib/types';
 import { addDays, formatDateStr, getTodayStr, getWeekStart, parseDateStr } from '@/lib/date';
+import { track } from '@/lib/analytics';
 
 interface ClientViewerProps {
   currentDateStr?: string;
@@ -95,7 +96,10 @@ export default function ClientViewer({ currentDateStr, currentViewMode = 'day', 
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        setIsPaletteOpen(prev => !prev);
+        setIsPaletteOpen(prev => {
+          if (!prev) track('command_palette_opened', { trigger: 'keyboard' });
+          return !prev;
+        });
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -103,6 +107,7 @@ export default function ClientViewer({ currentDateStr, currentViewMode = 'day', 
   }, []);
 
   const handleSelect = (item: SearchItem) => {
+    track('entity_selected', { filter_mode: item.type });
     setFilterMode(item.type as FilterMode);
     setSelectedValue(item.name);
   };
@@ -124,6 +129,7 @@ export default function ClientViewer({ currentDateStr, currentViewMode = 'day', 
   }, [data, extendedClasses, extendedRooms, extendedTeachers]);
 
   const navigateDay = (offset: number) => {
+    track('date_navigated', { direction: offset > 0 ? 'forward' : 'backward', view_mode: currentViewMode });
     const nextDate = currentViewMode === 'week'
       ? formatDateStr(addDays(currentDateStr ? parseDateStr(currentDateStr) : new Date(), offset * 7))
       : getDayOffsetDate(currentDateStr, offset);
@@ -178,12 +184,13 @@ export default function ClientViewer({ currentDateStr, currentViewMode = 'day', 
             <SelectionMenu
               filterMode={filterMode}
               selectedValue={selectedValue}
-              onOpenPalette={() => setIsPaletteOpen(true)}
+              onOpenPalette={() => { track('command_palette_opened', { trigger: 'button' }); setIsPaletteOpen(true); }}
               isFavorite={isFavorite(filterMode, selectedValue)}
               onToggleFavorite={() => toggleFavorite(filterMode, selectedValue)}
               onLogout={logout}
               favorites={favorites}
               onSelectFavorite={(mode, value) => {
+                track('favorite_selected', { filter_mode: mode });
                 setFilterMode(mode);
                 setSelectedValue(value);
               }}
@@ -203,10 +210,12 @@ export default function ClientViewer({ currentDateStr, currentViewMode = 'day', 
             isToday={isToday}
             viewMode={currentViewMode}
             onChangeViewMode={(mode) => {
+              track('view_mode_changed', { view: mode });
               const nextDate = currentDateStr || todayStr;
               pushDate(router, nextDate, mode);
             }}
             onToday={() => {
+              track('navigate_to_today', { view_mode: currentViewMode });
               const today = getTodayStr();
               pushDate(router, today, currentViewMode);
             }}
@@ -247,7 +256,7 @@ export default function ClientViewer({ currentDateStr, currentViewMode = 'day', 
                   </p>
                 </div>
                 <button
-                  onClick={() => refetch()}
+                  onClick={() => { track('timetable_refreshed'); refetch(); }}
                   className="btn btn-primary text-sm"
                   style={{ padding: '0.75rem 1.5rem' }}
                 >
@@ -283,7 +292,7 @@ export default function ClientViewer({ currentDateStr, currentViewMode = 'day', 
                   </p>
                 </div>
                 <button
-                  onClick={() => refetch()}
+                  onClick={() => { track('timetable_refreshed'); refetch(); }}
                   className="btn btn-outline text-sm"
                   style={{ padding: '0.625rem 1.25rem' }}
                 >
@@ -314,7 +323,7 @@ export default function ClientViewer({ currentDateStr, currentViewMode = 'day', 
                   </p>
                 </div>
                 <button
-                  onClick={() => refetch()}
+                  onClick={() => { track('timetable_refreshed'); refetch(); }}
                   className="btn btn-outline text-sm"
                   style={{ padding: '0.625rem 1.25rem' }}
                 >

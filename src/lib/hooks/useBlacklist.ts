@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { track } from '@/lib/analytics';
 
 // Maps an entity (e.g., class name, room name) to a list of blacklisted subjects
 type BlacklistMap = Record<string, string[]>;
@@ -34,6 +35,7 @@ export function useBlacklist(currentEntity: string) {
 
   const addToBlacklist = (subject: string) => {
     if (!currentEntity || currentBlacklist.includes(subject)) return;
+    track('blacklist_subject_toggled', { action: 'added' });
     saveBlacklist({
       ...blacklistMap,
       [currentEntity]: [...currentBlacklist, subject],
@@ -42,6 +44,7 @@ export function useBlacklist(currentEntity: string) {
 
   const removeFromBlacklist = (subject: string) => {
     if (!currentEntity) return;
+    track('blacklist_subject_toggled', { action: 'removed' });
     saveBlacklist({
       ...blacklistMap,
       [currentEntity]: currentBlacklist.filter((s) => s !== subject),

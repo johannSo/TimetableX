@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Favorite, FilterMode } from '@/lib/types';
+import { track } from '@/lib/analytics';
 
 const STORAGE_KEY = 'favorites';
 const MAX_FAVORITES = 4;
@@ -25,7 +26,7 @@ export function useFavorites() {
     setFavorites(prev => {
       const isFav = prev.some(f => f.mode === mode && f.value === value);
       let nextFavs: Favorite[];
-      
+
       if (isFav) {
         nextFavs = prev.filter(f => !(f.mode === mode && f.value === value));
       } else {
@@ -35,7 +36,8 @@ export function useFavorites() {
         }
         nextFavs = [...prev, { mode, value }];
       }
-      
+
+      track('favorite_toggled', { action: isFav ? 'removed' : 'added', filter_mode: mode });
       localStorage.setItem(STORAGE_KEY, JSON.stringify(nextFavs));
       return nextFavs;
     });
