@@ -48,27 +48,31 @@ export function Providers({ children }: { children: ReactNode }) {
     setIsConsentLoaded(true);
   }, []);
 
+  // Initialize PostHog once (opted out by default until consent is known)
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+    if (!key || hasInitializedPostHog) return;
+
+    posthog.init(key, {
+      api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://z.timetablex.space",
+      person_profiles: 'always',
+      capture_pageview: false,
+      opt_out_capturing_by_default: true,
+    });
+    setHasInitializedPostHog(true);
+  }, [hasInitializedPostHog]);
+
+  // Apply consent decision once PostHog is initialized and consent is loaded
+  useEffect(() => {
+    if (!hasInitializedPostHog || !isConsentLoaded) return;
 
     if (trackingConsent === "accepted") {
       posthog.opt_in_capturing();
-
-      if (key && !hasInitializedPostHog) {
-        posthog.init(key, {
-          api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://z.timetablex.space",
-          person_profiles: 'always',
-          capture_pageview: false
-        })
-        setHasInitializedPostHog(true);
-      }
-    }
-
-    if (trackingConsent === "rejected") {
+    } else if (trackingConsent === "rejected") {
       posthog.opt_out_capturing();
       posthog.reset();
     }
-  }, [hasInitializedPostHog, trackingConsent]);
+  }, [hasInitializedPostHog, isConsentLoaded, trackingConsent]);
 
   const handleAcceptTracking = () => {
     writeTrackingConsent("accepted");
