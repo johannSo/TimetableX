@@ -79,6 +79,7 @@ export default function ClientViewer({ currentDateStr, currentViewMode = 'day', 
     removeFromBlacklist,
     filteredDays,
     refetch,
+    isSelectionAvailable,
   } = useTimetable(creds, currentDateStr, currentViewMode);
 
   const { availableSubjects, isLoadingSubjects } = useAvailableSubjects(
@@ -336,11 +337,14 @@ export default function ClientViewer({ currentDateStr, currentViewMode = 'day', 
                 <WeekTimetableView
                   days={filteredDays}
                   showClassColumn={filterMode !== 'class'}
+                  selectionLabel={selectedValue}
                 />
               ) : (
                 <TimetableTable
                   entries={filteredEntries}
                   showClassColumn={filterMode !== 'class'}
+                  isSelectionAvailable={isSelectionAvailable}
+                  selectionLabel={selectedValue}
                 />
               )
             ) : null}
