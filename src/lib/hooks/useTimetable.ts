@@ -14,14 +14,23 @@ import { track } from '@/lib/analytics';
 
 const FETCH_KEY = 'timetable';
 
-function getAvailableValues(data: TimetableResponse | undefined, filterMode: FilterMode): string[] {
+export function getAvailableValues(data: TimetableResponse | undefined, filterMode: FilterMode): string[] {
   if (!data) return [];
   if (filterMode === 'class') return data.availableClasses;
   if (filterMode === 'room') return data.availableRooms;
   return data.availableTeachers;
 }
 
-function filterEntries(
+export function computeIsSelectionAvailable(
+  data: TimetableResponse | undefined,
+  filterMode: FilterMode,
+  selectedValue: string
+): boolean {
+  if (!selectedValue || !data) return true;
+  return getAvailableValues(data, filterMode).includes(selectedValue);
+}
+
+export function filterEntries(
   entries: TimetableEntry[],
   filterMode: FilterMode,
   selectedValue: string,
@@ -55,7 +64,7 @@ export function useTimetable(creds: Credentials | null, date?: string, view: Vie
     track('filter_mode_changed', { mode });
     setFilterModeRaw(mode);
   }, []);
-  
+
   const [selectedValue, setSelectedValue] = useState<string>(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('filterValue') || '';
@@ -85,16 +94,11 @@ export function useTimetable(creds: Credentials | null, date?: string, view: Vie
     if (error) track('timetable_fetch_error', { message: error.message });
   }, [error]);
 
-  // Automatically select first available value if none selected or current not available
+  // Auto-select first available value only when nothing has been chosen yet
   useEffect(() => {
-    if (data) {
+    if (data && !selectedValue) {
       const options = getAvailableValues(data, filterMode);
-      
-      if (!selectedValue && options.length > 0) {
-        setSelectedValue(options[0]);
-      } else if (selectedValue && !options.includes(selectedValue) && options.length > 0) {
-        setSelectedValue(options[0]);
-      }
+      if (options.length > 0) setSelectedValue(options[0]);
     }
   }, [data, filterMode, selectedValue]);
 
@@ -103,6 +107,11 @@ export function useTimetable(creds: Credentials | null, date?: string, view: Vie
     if (filterMode) localStorage.setItem('filterMode', filterMode);
     if (selectedValue) localStorage.setItem('filterValue', selectedValue);
   }, [filterMode, selectedValue]);
+
+  const isSelectionAvailable = useMemo(
+    () => computeIsSelectionAvailable(data, filterMode, selectedValue),
+    [data, filterMode, selectedValue]
+  );
 
   const filteredEntries = useMemo(() => {
     if (!data || !('entries' in data)) return [];
@@ -115,6 +124,7 @@ export function useTimetable(creds: Credentials | null, date?: string, view: Vie
     return data.days.map(day => ({
       ...day,
       filteredEntries: filterEntries(day.entries, filterMode, selectedValue, currentBlacklist),
+      isSelectionAvailable: computeIsSelectionAvailable(day, filterMode, selectedValue),
     }));
   }, [data, filterMode, selectedValue, currentBlacklist]);
 
@@ -132,5 +142,6 @@ export function useTimetable(creds: Credentials | null, date?: string, view: Vie
     addToBlacklist,
     removeFromBlacklist,
     filteredDays,
+    isSelectionAvailable,
   };
 }
