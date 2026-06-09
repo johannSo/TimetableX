@@ -11,14 +11,16 @@ export interface WeekTimetableDay {
   filteredEntries: TimetableEntry[];
   dayNotes?: string[];
   isWeekend?: boolean;
+  isSelectionAvailable?: boolean;
 }
 
 interface WeekTimetableViewProps {
   days: WeekTimetableDay[];
   showClassColumn: boolean;
+  selectionLabel?: string;
 }
 
-export default function WeekTimetableView({ days, showClassColumn }: WeekTimetableViewProps) {
+export default function WeekTimetableView({ days, showClassColumn, selectionLabel }: WeekTimetableViewProps) {
   const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
     const el = event.currentTarget;
     const horizontalIntent = event.shiftKey || Math.abs(event.deltaX) > Math.abs(event.deltaY);
@@ -114,7 +116,9 @@ export default function WeekTimetableView({ days, showClassColumn }: WeekTimetab
                         Kein Unterricht für diese Auswahl
                       </p>
                       <p className="text-sm mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-                        Dieser Tag ist leer oder alle passenden Einträge wurden ausgefiltert.
+                        {!day.isSelectionAvailable && selectionLabel
+                          ? `${selectionLabel} ist für diesen Tag nicht im Plan.`
+                          : 'Dieser Tag ist leer oder alle passenden Einträge wurden ausgefiltert.'}
                       </p>
                     </div>
                   </div>
