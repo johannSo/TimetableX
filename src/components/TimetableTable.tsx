@@ -7,6 +7,8 @@ interface TimetableTableProps {
   entries: TimetableEntry[];
   showClassColumn: boolean;
   compact?: boolean;
+  isSelectionAvailable?: boolean;
+  selectionLabel?: string;
 }
 
 function isCancelledEntry(entry: TimetableEntry): boolean {
@@ -34,8 +36,11 @@ function changeFlags(infoRaw: string) {
   return { room, teacher, hour, class: className, subject };
 }
 
-export default function TimetableTable({ entries, showClassColumn, compact = false }: TimetableTableProps) {
+export default function TimetableTable({ entries, showClassColumn, compact = false, isSelectionAvailable = true, selectionLabel }: TimetableTableProps) {
   if (entries.length === 0) {
+    const subtitle = !isSelectionAvailable && selectionLabel
+      ? `${selectionLabel} ist heute nicht im Vertretungsplan.`
+      : 'Für diese Auswahl gibt es keine Vertretungen.';
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <div
@@ -55,7 +60,7 @@ export default function TimetableTable({ entries, showClassColumn, compact = fal
             Keine Einträge
           </p>
           <p className="text-sm mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-            Für diese Auswahl gibt es keine Vertretungen.
+            {subtitle}
           </p>
         </div>
       </div>
