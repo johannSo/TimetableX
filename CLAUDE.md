@@ -8,9 +8,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 bun run dev      # Start dev server (webpack mode, allows LAN access via 192.168.x.x)
 bun run build    # Production build
 bun run start    # Start production server
+bun run test     # Run Vitest tests
 ```
 
-No test suite or linter is configured. TypeScript type checking is available via `tsc --noEmit`.
+TypeScript type checking is available via `tsc --noEmit`.
+
+## Tests
+
+Tests live in `src/lib/__tests__/` and run with Vitest (config: `vitest.config.ts`, environment: `node` by default).
+
+- **`trackingConsent.test.ts`** — Uses jsdom (`@vitest-environment jsdom`). Tests `readTrackingConsent` and `writeTrackingConsent` from `src/lib/trackingConsent.ts` via real browser cookies: no cookie → `'pending'`; valid values round-trip; unrecognised values fall back to `'pending'`; writing overwrites the previous value.
+
+- **`date.test.ts`** — Tests six pure date utilities from `src/lib/date.ts`: `formatDateStr` (Date → `YYYYMMDD`, zero-padded), `parseDateStr` (inverse, round-trips), `addDays` (positive/negative, crosses month boundaries, non-mutating), `getWeekStart` (returns the preceding Monday), `getWeekDates` (5 consecutive Mon–Fri dates), `formatWeekLabel` (German "Woche vom D.M - D.M", including cross-month).
+
+- **`filterEntries.test.ts`** — Tests the exported `filterEntries` function from `src/lib/hooks/useTimetable.ts`: filtering by `class`, `teacher`, or `room`; empty filter value returns `[]`; results sorted by hour ascending; blacklist excludes one or multiple subjects.
 
 ## Architecture
 
