@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { ShieldBan, X, Check, Loader2 } from 'lucide-react';
+import { ShieldBan, X, Check } from 'lucide-react';
 
 interface BlacklistModalProps {
   isOpen: boolean;
@@ -95,9 +95,18 @@ export default function BlacklistModal({
         {/* List */}
         <div className="flex-1 overflow-y-auto min-h-[200px] max-h-[50vh] p-3 space-y-1.5" style={{ background: 'var(--color-bg)' }}>
           {isLoadingSubjects ? (
-            <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
-              <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--color-primary)' }} strokeWidth={1.5} />
-              <p className="text-sm font-medium" style={{ color: 'var(--color-text)' }}>Lade Fächer der letzten 3 Wochen...</p>
+            <div className="space-y-1.5" aria-hidden="true">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg"
+                  style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-subtle)' }}
+                >
+                  <div className="skeleton" style={{ width: 20, height: 20, borderRadius: 6, flexShrink: 0, animationDelay: `${i * 0.06}s` }} />
+                  <div className="skeleton" style={{ width: `${55 + (i % 3) * 12}%`, height: 14, animationDelay: `${i * 0.06}s` }} />
+                </div>
+              ))}
+              <span className="sr-only" role="status">Lade Fächer der letzten 3 Wochen...</span>
             </div>
           ) : allSubjects.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-center">

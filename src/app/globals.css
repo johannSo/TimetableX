@@ -52,9 +52,9 @@
 
   /* 3D inactive button base */
   --btn-3d-top: var(--color-primary-light);
-  --btn-3d-bottom: color-mix(in srgb, var(--color-primary-light) 70%, #000 30%);
+  --btn-3d-bottom: var(--color-primary-border);
   --btn-3d-border: var(--color-primary-border);
-  --btn-3d-shadow: color-mix(in srgb, var(--color-primary) 55%, #000 45%);
+  --btn-3d-shadow: color-mix(in srgb, var(--color-primary) 65%, var(--color-primary-border) 35%);
 
   /* Pointer-driven background */
   --pointer-x: 0;
@@ -100,6 +100,10 @@
     --bg-orb-1: #2A2E45;
     --bg-orb-2: #2F2744;
     --bg-orb-3: #233142;
+
+    /* 3D inactive button base (kept dark, mixing toward black still reads as a glow here) */
+    --btn-3d-bottom: color-mix(in srgb, var(--color-primary-light) 70%, #000 30%);
+    --btn-3d-shadow: color-mix(in srgb, var(--color-primary) 55%, #000 45%);
   }
 }
 
@@ -499,10 +503,10 @@ h1, h2, h3, .display {
 }
 
 .favorite-btn:not(.active) {
-  background: linear-gradient(180deg, var(--color-primary-light), color-mix(in srgb, var(--color-primary-light) 70%, #000 30%));
+  background: linear-gradient(180deg, var(--btn-3d-top), var(--btn-3d-bottom));
   border-color: var(--color-primary-border);
   color: var(--color-primary);
-  box-shadow: 0 6px 0 0 color-mix(in srgb, var(--color-primary) 55%, #000 45%), 0 12px 22px -14px rgba(0,0,0,0.35);
+  box-shadow: 0 6px 0 0 var(--btn-3d-shadow), 0 12px 22px -14px rgba(0,0,0,0.35);
 }
 
 .favorite-btn.active {
@@ -619,6 +623,57 @@ h1, h2, h3, .display {
 
 .table-row.cancelled:hover {
   background: var(--color-danger-bg);
+}
+
+/* Skeleton loaders */
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton {
+  display: block;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    100deg,
+    var(--color-border) 35%,
+    color-mix(in srgb, var(--color-border), white 45%) 50%,
+    var(--color-border) 65%
+  );
+  background-size: 250% 100%;
+  animation: skeleton-shimmer 1.8s ease-in-out infinite;
+}
+
+.skeleton-pill {
+  border-radius: 999px;
+}
+
+/* Top loading bar */
+@keyframes loading-bar-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+
+.loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 200;
+  overflow: hidden;
+  pointer-events: none;
+  transition: opacity var(--transition-base);
+}
+
+.loading-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 35%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--color-primary), var(--color-accent), transparent);
+  animation: loading-bar-sweep 1.3s ease-in-out infinite;
 }
 
 .surface-soft {

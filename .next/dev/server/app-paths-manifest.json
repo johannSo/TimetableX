@@ -1,3 +1,5 @@
 {
+  "/api/stundenplan/route": "app/api/stundenplan/route.js",
+  "/api/subjects/route": "app/api/subjects/route.js",
   "/page": "app/page.js"
 }

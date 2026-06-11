@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, AlertCircle, Calendar, CheckCircle2, RefreshCw } from 'lucide-react';
+import { AlertCircle, Calendar, CheckCircle2, RefreshCw } from 'lucide-react';
 
 import CommandPalette from './CommandPalette';
 import LoginForm from './LoginForm';
@@ -12,6 +12,8 @@ import TimetableHeader from './TimetableHeader';
 import TimetableTable from './TimetableTable';
 import BlacklistModal from './BlacklistModal';
 import WeekTimetableView from './WeekTimetableView';
+import LoadingBar from './LoadingBar';
+import { TimetableSkeleton, WeekTimetableSkeleton } from './TimetableSkeleton';
 
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useFavorites } from '@/lib/hooks/useFavorites';
@@ -161,6 +163,7 @@ export default function ClientViewer({ currentDateStr, currentViewMode = 'day', 
 
   return (
     <div className="flex min-h-[100dvh] w-full flex-col">
+      <LoadingBar active={isLoading} />
       <CommandPalette
         isOpen={isPaletteOpen}
         onClose={() => setIsPaletteOpen(false)}
@@ -224,16 +227,14 @@ export default function ClientViewer({ currentDateStr, currentViewMode = 'day', 
 
           <div>
             {isLoading && !data ? (
-              <div className="flex flex-col items-center justify-center py-24 gap-5">
-                <Loader2
-                  className="w-10 h-10 animate-spin"
-                  style={{ color: 'var(--color-primary)' }}
-                  strokeWidth={1.75}
-                />
-                <p className="text-base font-medium" style={{ color: 'var(--color-text-secondary)' }}>
-                  Daten werden geladen…
-                </p>
-              </div>
+              <>
+                <span className="sr-only" role="status">Daten werden geladen…</span>
+                {currentViewMode === 'week' ? (
+                  <WeekTimetableSkeleton showClassColumn={filterMode !== 'class'} />
+                ) : (
+                  <TimetableSkeleton showClassColumn={filterMode !== 'class'} rows={8} />
+                )}
+              </>
             ) : error ? (
               <div className="flex flex-col items-center justify-center py-20 px-6 gap-5 text-center">
                 <div

@@ -54,8 +54,19 @@ export default function TimetableHeader({
             <p className="text-xs font-semibold uppercase tracking-[0.16em]" style={{ color: 'var(--color-text-muted)' }}>
               {selectionLabel}
             </p>
-            <h2 className="text-base font-bold leading-tight truncate display" style={{ color: 'var(--color-text)' }}>
-              {isLoading ? 'Aktualisiere…' : cleanDate || 'Stundenplan'}
+            <h2 className="text-base font-bold leading-tight truncate display flex items-center gap-2" style={{ color: 'var(--color-text)' }}>
+              {isLoading ? (
+                <>
+                  <Loader2
+                    className="w-4 h-4 animate-spin flex-shrink-0"
+                    style={{ color: 'var(--color-primary)' }}
+                    strokeWidth={2.5}
+                  />
+                  Aktualisiere…
+                </>
+              ) : (
+                cleanDate || 'Stundenplan'
+              )}
             </h2>
           </div>
         </div>
