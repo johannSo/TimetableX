@@ -190,8 +190,9 @@ async function fetchDayTimetable(
       currentDateStr: targetDateStr,
       dayNotes: dayNotes.length > 0 ? dayNotes : undefined,
     };
-  } catch (error: any) {
-    if (error.message.includes('fetch')) {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.includes('fetch')) {
       throw new Error('Verbindung zum Server fehlgeschlagen.');
     }
     throw error;

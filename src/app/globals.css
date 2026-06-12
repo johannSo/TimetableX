@@ -400,60 +400,6 @@ h1, h2, h3, .display {
   box-shadow: 0 1px 0 0 color-mix(in srgb, var(--color-border) 60%, #000 40%);
 }
 
-.nav-group {
-  display: inline-flex;
-  align-items: center;
-  border: 1.5px solid var(--btn-3d-border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background: linear-gradient(180deg, var(--btn-3d-top), var(--btn-3d-bottom));
-  box-shadow: 0 6px 0 0 var(--btn-3d-shadow), 0 12px 22px -14px rgba(0,0,0,0.35);
-}
-
-.nav-btn {
-  width: 48px;
-  height: 48px;
-  border: none;
-  background: transparent;
-  color: var(--color-text);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
-  box-shadow: inset 0 -1px 0 0 var(--color-border);
-}
-
-.nav-btn:hover {
-  background: color-mix(in srgb, var(--btn-3d-top) 70%, #fff 30%);
-}
-
-.nav-btn:active {
-  transform: translateY(2px);
-}
-
-.nav-today {
-  height: 48px;
-  padding: 0 0.9rem;
-  border-left: 1px solid var(--color-border);
-  border-right: 1px solid var(--color-border);
-  background: transparent;
-  color: var(--color-text-secondary);
-  font-weight: 600;
-  cursor: pointer;
-  transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
-  box-shadow: inset 0 -1px 0 0 var(--color-border);
-}
-
-.nav-today:hover {
-  color: var(--color-primary);
-  background: color-mix(in srgb, var(--btn-3d-top) 70%, #fff 30%);
-}
-
-.nav-today:active {
-  transform: translateY(2px);
-}
-
 .search-trigger {
   display: flex;
   align-items: center;
@@ -486,56 +432,6 @@ h1, h2, h3, .display {
   gap: 0.2rem;
 }
 
-.favorite-btn {
-  width: var(--control-height);
-  height: var(--control-height);
-  border-radius: var(--radius-lg);
-  border: 1.5px solid var(--color-border);
-  background: var(--color-surface-raised);
-  color: var(--color-text-muted);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 0;
-  cursor: pointer;
-  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
-  box-shadow: 0 5px 0 0 color-mix(in srgb, var(--color-border) 70%, #000 30%);
-}
-
-.favorite-btn:not(.active) {
-  background: linear-gradient(180deg, var(--btn-3d-top), var(--btn-3d-bottom));
-  border-color: var(--color-primary-border);
-  color: var(--color-primary);
-  box-shadow: 0 6px 0 0 var(--btn-3d-shadow), 0 12px 22px -14px rgba(0,0,0,0.35);
-}
-
-.favorite-btn.active {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: #fff;
-  box-shadow: 0 5px 0 0 color-mix(in srgb, var(--color-primary) 65%, #000 35%);
-}
-
-.favorite-btn:hover {
-  border-color: var(--btn-3d-border);
-  background: linear-gradient(180deg, var(--btn-3d-top), color-mix(in srgb, var(--btn-3d-bottom) 85%, #000 15%));
-  color: var(--color-primary);
-}
-
-.favorite-btn.active:hover {
-  background: var(--color-primary-hover);
-  color: #fff;
-}
-
-.favorite-btn:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 0 color-mix(in srgb, var(--color-border) 60%, #000 40%);
-}
-
-.favorite-btn.active:active {
-  box-shadow: 0 2px 0 0 color-mix(in srgb, var(--color-primary) 60%, #000 40%);
-}
-
 .palette-backdrop {
   background: rgba(20, 16, 12, 0.35);
   backdrop-filter: blur(10px);
@@ -547,6 +443,11 @@ h1, h2, h3, .display {
   border-radius: var(--radius-xl);
   box-shadow: 0 28px 70px -28px rgb(10 8 6 / 0.65);
   animation: palette-in 180ms ease;
+}
+
+@keyframes palette-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .palette-input {
@@ -674,12 +575,6 @@ h1, h2, h3, .display {
   border-radius: 999px;
   background: linear-gradient(90deg, transparent, var(--color-primary), var(--color-accent), transparent);
   animation: loading-bar-sweep 1.3s ease-in-out infinite;
-}
-
-.surface-soft {
-  background: var(--color-surface-raised);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
 }
 
 .bg-field {

@@ -61,13 +61,9 @@ export default function BlacklistModal({
 
       {/* Panel */}
       <div
-        className="relative w-full max-w-md overflow-hidden palette-panel bg-white dark:bg-zinc-900 rounded-xl shadow-2xl flex flex-col"
+        className="relative w-full max-w-md overflow-hidden palette-panel flex flex-col"
         onClick={e => e.stopPropagation()}
-        style={{ 
-          background: 'var(--color-surface)', 
-          border: '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-lg)' 
-        }}
+        style={{ borderRadius: 'var(--radius-lg)' }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
@@ -78,8 +74,8 @@ export default function BlacklistModal({
           <button
             onClick={onClose}
             aria-label="Schließen"
-            className="icon-btn hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
-            style={{ width: 36, height: 36, background: 'var(--color-bg)' }}
+            className="icon-btn"
+            style={{ width: 36, height: 36 }}
           >
             <X className="w-4 h-4 mx-auto" style={{ color: 'var(--color-text-secondary)' }} strokeWidth={2} />
           </button>

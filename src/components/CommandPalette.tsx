@@ -17,6 +17,12 @@ const typeLabel: Record<SearchItem['type'], string> = {
   teacher: 'Lehrer',
 };
 
+const typeLabelPlural: Record<SearchItem['type'], string> = {
+  class: 'Klassen',
+  room: 'Räume',
+  teacher: 'Lehrer',
+};
+
 const TypeIcon = ({ type }: { type: SearchItem['type'] }) => {
   const props = { className: 'w-4 h-4', strokeWidth: 1.75 as number };
   if (type === 'class') return <Users {...props} />;
@@ -163,7 +169,7 @@ export default function CommandPalette({ isOpen, onClose, onSelect, items }: Com
                       className="text-xs font-semibold uppercase tracking-wider"
                       style={{ color: 'var(--color-text-muted)' }}
                     >
-                      {typeLabel[group.type]}n
+                      {typeLabelPlural[group.type]}
                     </span>
                   </div>
 
@@ -290,13 +296,6 @@ export default function CommandPalette({ isOpen, onClose, onSelect, items }: Com
           </span>
         </div>
       </div>
-
-      <style>{`
-        @keyframes palette-in {
-          from { opacity: 0; transform: translateY(-8px) scale(0.98); }
-          to   { opacity: 1; transform: translateY(0) scale(1); }
-        }
-      `}</style>
     </div>
   );
 }

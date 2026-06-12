@@ -8,7 +8,6 @@ type BlacklistMap = Record<string, string[]>;
 
 export function useBlacklist(currentEntity: string) {
   const [blacklistMap, setBlacklistMap] = useState<BlacklistMap>({});
-  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -20,7 +19,6 @@ export function useBlacklist(currentEntity: string) {
       } catch (e) {
         console.error('Failed to load blacklist from local storage', e);
       }
-      setIsInitialized(true);
     }
   }, []);
 
@@ -51,15 +49,9 @@ export function useBlacklist(currentEntity: string) {
     });
   };
 
-  const isBlacklisted = (subject: string) => {
-    return currentBlacklist.includes(subject);
-  };
-
   return {
     currentBlacklist,
     addToBlacklist,
     removeFromBlacklist,
-    isBlacklisted,
-    isInitialized,
   };
 }

@@ -52,7 +52,6 @@ export function useExtendedEntities(creds: Credentials | null) {
   const [extendedClasses, setExtendedClasses] = useState<string[]>([]);
   const [extendedRooms, setExtendedRooms] = useState<string[]>([]);
   const [extendedTeachers, setExtendedTeachers] = useState<string[]>([]);
-  const [isLoadingExtended, setIsLoadingExtended] = useState(false);
 
   useEffect(() => {
     if (!creds) return;
@@ -66,8 +65,6 @@ export function useExtendedEntities(creds: Credentials | null) {
       setExtendedTeachers(cached.teachers);
       return () => controller.abort();
     }
-
-    setIsLoadingExtended(true);
 
     const weekDateStrs = getLastFourWeekStartStrs();
     const fetches = weekDateStrs.map(date =>
@@ -104,11 +101,11 @@ export function useExtendedEntities(creds: Credentials | null) {
       setExtendedClasses(classes);
       setExtendedRooms(rooms);
       setExtendedTeachers(teachers);
-    }).finally(() => setIsLoadingExtended(false));
+    });
 
     return () => controller.abort();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [creds?.school, creds?.user, creds?.pass]);
 
-  return { extendedClasses, extendedRooms, extendedTeachers, isLoadingExtended };
+  return { extendedClasses, extendedRooms, extendedTeachers };
 }

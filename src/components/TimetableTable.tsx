@@ -103,9 +103,6 @@ export default function TimetableTable({ entries, showClassColumn, compact = fal
             
             const isLast = i === entries.length - 1;
 
-            // Use a specific red color if var might be failing
-            const redColor = '#F7768E';
-
             return (
               <tr
                 key={i}
@@ -119,7 +116,7 @@ export default function TimetableTable({ entries, showClassColumn, compact = fal
                   className="text-center font-bold text-base"
                   style={{
                     padding: compact ? '0.75rem 0.5rem 0.75rem 0.75rem' : '1rem 0.75rem 1rem 1.25rem',
-                    color: cancelled || hourChanged ? redColor : 'var(--color-text)',
+                    color: cancelled || hourChanged ? 'var(--color-danger)' : 'var(--color-text)',
                     width: compact ? 38 : 52,
                     whiteSpace: 'nowrap',
                   }}
@@ -138,7 +135,7 @@ export default function TimetableTable({ entries, showClassColumn, compact = fal
                     {cancelled && (
                       <XCircle
                         className="w-4 h-4 flex-shrink-0"
-                        style={{ color: redColor }}
+                        style={{ color: 'var(--color-danger)' }}
                         strokeWidth={2}
                         aria-label="Ausfall"
                       />
@@ -146,9 +143,9 @@ export default function TimetableTable({ entries, showClassColumn, compact = fal
                     <span
                       className={`font-semibold ${compact ? 'text-sm leading-snug break-words' : 'text-base'}`}
                       style={{
-                        color: cancelled || subjectChanged ? redColor : 'var(--color-text)',
+                        color: cancelled || subjectChanged ? 'var(--color-danger)' : 'var(--color-text)',
                         textDecorationLine: cancelled ? 'line-through' : 'none',
-                        textDecorationColor: redColor,
+                        textDecorationColor: 'var(--color-danger)',
                       }}
                     >
                       {e.subject}
@@ -162,7 +159,7 @@ export default function TimetableTable({ entries, showClassColumn, compact = fal
                     className={`font-medium ${compact ? 'text-xs leading-snug break-words' : 'text-sm'}`}
                     style={{
                       padding: compact ? '0.75rem 0.6rem' : '1rem 1rem',
-                      color: cancelled || classChanged ? redColor : 'var(--color-text-secondary)',
+                      color: cancelled || classChanged ? 'var(--color-danger)' : 'var(--color-text-secondary)',
                       whiteSpace: compact ? 'normal' : 'nowrap',
                     }}
                   >
@@ -175,7 +172,7 @@ export default function TimetableTable({ entries, showClassColumn, compact = fal
                   className={`font-medium ${compact ? 'text-xs leading-snug break-words' : 'text-sm'}`}
                   style={{
                     padding: compact ? '0.75rem 0.6rem' : '1rem 1rem',
-                    color: cancelled || teacherChanged ? redColor : 'var(--color-text-secondary)',
+                    color: cancelled || teacherChanged ? 'var(--color-danger)' : 'var(--color-text-secondary)',
                     whiteSpace: compact ? 'normal' : 'nowrap',
                   }}
                 >
@@ -194,7 +191,7 @@ export default function TimetableTable({ entries, showClassColumn, compact = fal
                     className="badge"
                     style={{
                       background: cancelled || roomChanged ? 'var(--color-danger-bg)' : 'var(--color-primary-light)',
-                      color: cancelled || roomChanged ? redColor : 'var(--color-primary)',
+                      color: cancelled || roomChanged ? 'var(--color-danger)' : 'var(--color-primary)',
                       border: cancelled || roomChanged ? `1px solid var(--color-danger-border)` : 'none',
                     }}
                   >
@@ -207,7 +204,7 @@ export default function TimetableTable({ entries, showClassColumn, compact = fal
                   className={compact ? 'text-xs' : 'text-sm'}
                   style={{
                     padding: compact ? '0.75rem 0.6rem 0.75rem 0.4rem' : '1rem 1.25rem 1rem 0.75rem',
-                    color: cancelled ? redColor : 'var(--color-text-secondary)',
+                    color: cancelled ? 'var(--color-danger)' : 'var(--color-text-secondary)',
                     fontStyle: e.info && e.info !== '---' ? 'normal' : 'italic',
                     maxWidth: compact ? 'none' : 260,
                     whiteSpace: compact ? 'normal' : 'nowrap',

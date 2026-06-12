@@ -26,7 +26,7 @@ export interface TimetableData {
   isWeekend?: boolean;
 }
 
-export interface TimetableDayData extends TimetableData {}
+export type TimetableDayData = TimetableData;
 
 export interface TimetableWeekData {
   title: string;
