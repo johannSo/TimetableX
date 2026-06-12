@@ -62,4 +62,4 @@ Passing `school: 'sample'` or `school: 'demo'` to the API skips the remote fetch
 
 ### Analytics
 
-PostHog is integrated via `src/app/providers.tsx`. Tracking is gated on `src/lib/trackingConsent.ts`; the consent banner lives in `src/components/CookieConsentBanner.tsx`.
+Self-hosted Umami is integrated via `src/app/providers.tsx` (loaded only after consent, via `NEXT_PUBLIC_UMAMI_SRC` / `NEXT_PUBLIC_UMAMI_WEBSITE_ID`). Tracking is gated on `src/lib/trackingConsent.ts`; the consent banner lives in `src/components/CookieConsentBanner.tsx`. Custom events are sent via `track()` in `src/lib/analytics.ts`, which calls `window.umami.track`.

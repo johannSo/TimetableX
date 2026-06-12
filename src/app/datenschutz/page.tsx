@@ -34,7 +34,7 @@ export default function DatenschutzPage() {
         </p>
         <p>
           Für die Webanalyse wird ein Cookie-Banner eingesetzt. Analyse-Cookies können
-          abgelehnt werden; in diesem Fall wird PostHog nicht aktiviert.
+          abgelehnt werden; in diesem Fall wird Umami nicht aktiviert.
         </p>
       </section>
 
@@ -65,10 +65,11 @@ export default function DatenschutzPage() {
       </section>
 
       <section>
-        <h2>5. Webanalyse mit PostHog</h2>
+        <h2>5. Webanalyse mit Umami</h2>
         <p>
-          Diese Website verwendet PostHog zur Analyse der Nutzung der Website und zur
-          Verbesserung des Angebots, sofern Sie der Analyse zugestimmt haben.
+          Diese Website verwendet ein selbst gehostetes Umami zur Analyse der Nutzung
+          der Website und zur Verbesserung des Angebots, sofern Sie der Analyse
+          zugestimmt haben.
         </p>
         <p>Dabei können insbesondere folgende Informationen verarbeitet werden:</p>
         <ul>
@@ -78,15 +79,13 @@ export default function DatenschutzPage() {
           <li>Interaktionen innerhalb der Website</li>
         </ul>
         <p>
-          Die Daten werden über die PostHog Cloud innerhalb der Europäischen Union
-          verarbeitet.
+          Umami wird auf einem eigenen Server betrieben. Es werden keine Daten an
+          Drittanbieter übermittelt. Umami arbeitet ohne Cookies und ohne dauerhafte
+          Identifizierung einzelner Geräte.
         </p>
         <p>
           Die Analyse dient ausschließlich der Verbesserung der Website und ihrer
           Funktionen.
-        </p>
-        <p>
-          Weitere Informationen finden Sie in der Datenschutzerklärung von PostHog.
         </p>
       </section>
 

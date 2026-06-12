@@ -21,8 +21,9 @@ export default function CookieConsentBanner({ onAccept, onReject }: CookieConsen
                 Analyse-Cookies aktivieren?
               </h2>
               <p className="mt-3 text-sm leading-relaxed text-[var(--color-text-secondary)] sm:text-base">
-                Wir nutzen PostHog, um die Website zu verbessern. Du kannst die Analyse
-                ablehnen. Dann wird PostHog für deinen Besuch nicht aktiviert.
+                Wir nutzen ein selbst gehostetes Umami, um die Website zu verbessern. Du
+                kannst die Analyse ablehnen. Dann wird Umami für deinen Besuch nicht
+                aktiviert.
               </p>
               <p className="mt-3 text-sm text-[var(--color-text-secondary)]">
                 Mehr dazu in der{" "}
