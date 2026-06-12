@@ -1,5 +1,13 @@
-import posthog from 'posthog-js'
+declare global {
+  interface Window {
+    umami?: {
+      track: (event: string, props?: Record<string, unknown>) => void
+    }
+  }
+}
 
 export function track(event: string, props?: Record<string, unknown>) {
-  posthog.capture(event, props)
+  if (typeof window !== 'undefined' && window.umami) {
+    window.umami.track(event, props)
+  }
 }
