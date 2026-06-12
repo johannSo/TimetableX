@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Button } from "./button";
 
 type CookieConsentBannerProps = {
   onAccept: () => void;
@@ -40,20 +41,22 @@ export default function CookieConsentBanner({
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-              <button
+              <Button
                 type="button"
                 onClick={onReject}
-                className="btn btn-outline w-full rounded-full px-5 py-3 text-sm sm:w-auto"
+                variant="outline"
+                className="w-full rounded-full px-5 py-3 text-sm sm:w-auto"
               >
                 Nur notwendige
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={onAccept}
-                className="btn btn-primary w-full rounded-full px-5 py-3 text-sm sm:w-auto"
+                variant="primary"
+                className="w-full rounded-full px-5 py-3 text-sm sm:w-auto"
               >
                 Analyse akzeptieren
-              </button>
+              </Button>
             </div>
           </div>
         </div>

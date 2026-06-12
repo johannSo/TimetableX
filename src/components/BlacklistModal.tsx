@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { ShieldBan, X, Check } from 'lucide-react';
+import { Button } from './button';
 
 interface BlacklistModalProps {
   isOpen: boolean;
@@ -71,14 +72,14 @@ export default function BlacklistModal({
             <ShieldBan className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--color-danger)' }} />
             <span className="font-semibold text-base">Fächer verbergen ({currentEntity})</span>
           </div>
-          <button
+          <Button
             onClick={onClose}
             aria-label="Schließen"
-            className="icon-btn"
+            variant="icon"
             style={{ width: 36, height: 36 }}
           >
             <X className="w-4 h-4 mx-auto" style={{ color: 'var(--color-text-secondary)' }} strokeWidth={2} />
-          </button>
+          </Button>
         </div>
 
         {/* Description */}
@@ -116,7 +117,7 @@ export default function BlacklistModal({
             allSubjects.map((subject) => {
               const isBlacklisted = currentBlacklist.includes(subject);
               return (
-                <button
+                <Button
                   key={subject}
                   onClick={() => isBlacklisted ? removeFromBlacklist(subject) : addToBlacklist(subject)}
                   className="w-full flex items-center justify-between px-4 py-3 rounded-lg group text-left transition-all active:scale-[0.98]"
@@ -145,7 +146,7 @@ export default function BlacklistModal({
                       {subject}
                     </span>
                   </div>
-                </button>
+                </Button>
               );
             })
           )}

@@ -14,6 +14,7 @@ import BlacklistModal from './BlacklistModal';
 import WeekTimetableView from './WeekTimetableView';
 import LoadingBar from './LoadingBar';
 import { TimetableSkeleton, WeekTimetableSkeleton } from './TimetableSkeleton';
+import { Button } from './button';
 
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useFavorites } from '@/lib/hooks/useFavorites';
@@ -257,14 +258,14 @@ export default function ClientViewer({ currentDateStr, currentViewMode = 'day', 
                     Der Plan existiert möglicherweise noch nicht oder die Anmeldedaten sind abgelaufen.
                   </p>
                 </div>
-                <button
+                <Button
                   onClick={() => { track('timetable_refreshed'); refetch(); }}
-                  className="btn btn-primary text-sm"
+                  variant="primary" className="text-sm"
                   style={{ padding: '0.75rem 1.5rem' }}
                 >
                   <RefreshCw className="w-4 h-4" strokeWidth={2} />
                   Erneut versuchen
-                </button>
+                </Button>
               </div>
             ) : isEmptyDay ? (
               <div className="flex flex-col items-center justify-center py-20 px-6 gap-5 text-center">
@@ -293,14 +294,14 @@ export default function ClientViewer({ currentDateStr, currentViewMode = 'day', 
                       : 'An diesem Tag findet kein Unterricht statt oder der Plan ist noch nicht verfügbar.'}
                   </p>
                 </div>
-                <button
+                <Button
                   onClick={() => { track('timetable_refreshed'); refetch(); }}
-                  className="btn btn-outline text-sm"
+                  variant="outline" className="text-sm"
                   style={{ padding: '0.625rem 1.25rem' }}
                 >
                   <RefreshCw className="w-3.5 h-3.5" strokeWidth={2} />
                   Aktualisieren
-                </button>
+                </Button>
               </div>
             ) : isEmptyWeek ? (
               <div className="flex flex-col items-center justify-center py-20 px-6 gap-5 text-center">
@@ -324,14 +325,14 @@ export default function ClientViewer({ currentDateStr, currentViewMode = 'day', 
                     Für die aktuelle Auswahl gibt es in dieser Woche keine passenden Vertretungen.
                   </p>
                 </div>
-                <button
+                <Button
                   onClick={() => { track('timetable_refreshed'); refetch(); }}
-                  className="btn btn-outline text-sm"
+                  variant="outline" className="text-sm"
                   style={{ padding: '0.625rem 1.25rem' }}
                 >
                   <RefreshCw className="w-3.5 h-3.5" strokeWidth={2} />
                   Aktualisieren
-                </button>
+                </Button>
               </div>
             ) : data ? (
               currentViewMode === 'week' && isWeekData ? (
