@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { School, User, Lock, ArrowRight } from 'lucide-react';
 import { Credentials } from '@/lib/types';
+import { Button } from './button';
 
 interface LoginFormProps {
   onLogin: (creds: Credentials) => void;
@@ -115,14 +116,14 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
             />
           </div>
 
-          <button
+          <Button
             type="submit"
-            className="btn btn-primary w-full text-base"
+            variant="primary" className="w-full text-base"
             style={{ padding: '0.9375rem 1.5rem', marginTop: '0.5rem' }}
           >
             Anmelden
             <ArrowRight className="w-4 h-4" />
-          </button>
+          </Button>
         </form>
       </div>
     </div>

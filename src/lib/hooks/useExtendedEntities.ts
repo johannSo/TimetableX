@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Credentials, TimetableWeekData } from '@/lib/types';
+import { useEffect, useState } from 'react';
+import { AuthIdentity, TimetableWeekData } from '@/lib/types';
 import { addDays, formatDateStr, getWeekStart } from '@/lib/date';
 
 const CACHE_TTL = 24 * 60 * 60 * 1000;
+const WEEKS_TO_LOOK_BACK = 2;
 
 interface ExtendedEntitiesCache {
   classes: string[];
@@ -13,16 +14,20 @@ interface ExtendedEntitiesCache {
   cachedAt: number;
 }
 
-function getLastFourWeekStartStrs(): string[] {
+function getRecentWeekStartStrs(): string[] {
   const today = new Date();
-  return [1, 2, 3, 4].map(n =>
-    formatDateStr(getWeekStart(addDays(today, -7 * n)))
+  return Array.from({ length: WEEKS_TO_LOOK_BACK }, (_, index) =>
+    formatDateStr(getWeekStart(addDays(today, -7 * (index + 1))))
   );
 }
 
-function loadCache(school: string): ExtendedEntitiesCache | null {
+function getCacheKey(creds: AuthIdentity): string {
+  return `extended_entities_${creds.school}`;
+}
+
+function loadCache(creds: AuthIdentity): ExtendedEntitiesCache | null {
   try {
-    const raw = localStorage.getItem(`extended_entities_${school}`);
+    const raw = localStorage.getItem(getCacheKey(creds));
     if (!raw) return null;
     const parsed: ExtendedEntitiesCache = JSON.parse(raw);
     if (
@@ -31,7 +36,9 @@ function loadCache(school: string): ExtendedEntitiesCache | null {
       !Array.isArray(parsed.rooms) ||
       !Array.isArray(parsed.teachers) ||
       typeof parsed.cachedAt !== 'number'
-    ) return null;
+    ) {
+      return null;
+    }
     if (Date.now() - parsed.cachedAt > CACHE_TTL) return null;
     return parsed;
   } catch {
@@ -39,73 +46,91 @@ function loadCache(school: string): ExtendedEntitiesCache | null {
   }
 }
 
-function saveCache(school: string, classes: string[], rooms: string[], teachers: string[]): void {
-  try {
-    const cache: ExtendedEntitiesCache = { classes, rooms, teachers, cachedAt: Date.now() };
-    localStorage.setItem(`extended_entities_${school}`, JSON.stringify(cache));
-  } catch {
-    // localStorage unavailable or full — silently skip
-  }
+function saveCache(
+  creds: AuthIdentity,
+  classes: string[],
+  rooms: string[],
+  teachers: string[]
+): void {
+  const cache: ExtendedEntitiesCache = {
+    classes,
+    rooms,
+    teachers,
+    cachedAt: Date.now(),
+  };
+  localStorage.setItem(getCacheKey(creds), JSON.stringify(cache));
 }
 
-export function useExtendedEntities(creds: Credentials | null) {
+export function useExtendedEntities(creds: AuthIdentity | null) {
   const [extendedClasses, setExtendedClasses] = useState<string[]>([]);
   const [extendedRooms, setExtendedRooms] = useState<string[]>([]);
   const [extendedTeachers, setExtendedTeachers] = useState<string[]>([]);
 
   useEffect(() => {
-    if (!creds) return;
+    if (!creds) {
+      setExtendedClasses([]);
+      setExtendedRooms([]);
+      setExtendedTeachers([]);
+      return;
+    }
 
-    const controller = new AbortController();
-
-    const cached = loadCache(creds.school);
+    const cached = loadCache(creds);
     if (cached) {
       setExtendedClasses(cached.classes);
       setExtendedRooms(cached.rooms);
       setExtendedTeachers(cached.teachers);
-      return () => controller.abort();
+      return;
     }
 
-    const weekDateStrs = getLastFourWeekStartStrs();
-    const fetches = weekDateStrs.map(date =>
-      fetch('/api/stundenplan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...creds, date, view: 'week' }),
-        signal: controller.signal,
-      })
-        .then(res => (res.ok ? (res.json() as Promise<TimetableWeekData>) : null))
-        .catch(() => null)
-    );
+    let cancelled = false;
+    const activeCreds = creds;
 
-    Promise.allSettled(fetches).then(results => {
-      if (controller.signal.aborted) return;
+    async function load() {
+      const classes = new Set<string>();
+      const rooms = new Set<string>();
+      const teachers = new Set<string>();
 
-      const classSet = new Set<string>();
-      const roomSet = new Set<string>();
-      const teacherSet = new Set<string>();
+      for (const date of getRecentWeekStartStrs()) {
+        if (cancelled) return;
 
-      results.forEach(result => {
-        if (result.status !== 'fulfilled' || !result.value) return;
-        const d = result.value;
-        (d.availableClasses ?? []).forEach((c: string) => classSet.add(c));
-        (d.availableRooms ?? []).forEach((r: string) => roomSet.add(r));
-        (d.availableTeachers ?? []).forEach((t: string) => teacherSet.add(t));
-      });
+        const res = await fetch('/api/stundenplan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date, view: 'week' }),
+        });
 
-      const classes = Array.from(classSet).sort();
-      const rooms = Array.from(roomSet).sort();
-      const teachers = Array.from(teacherSet).sort();
+        if (!res.ok) continue;
 
-      saveCache(creds.school, classes, rooms, teachers);
-      setExtendedClasses(classes);
-      setExtendedRooms(rooms);
-      setExtendedTeachers(teachers);
+        const week = (await res.json()) as TimetableWeekData;
+        week.availableClasses.forEach(value => classes.add(value));
+        week.availableRooms.forEach(value => rooms.add(value));
+        week.availableTeachers.forEach(value => teachers.add(value));
+      }
+
+      if (cancelled) return;
+
+      const classList = Array.from(classes).sort();
+      const roomList = Array.from(rooms).sort();
+      const teacherList = Array.from(teachers).sort();
+
+      setExtendedClasses(classList);
+      setExtendedRooms(roomList);
+      setExtendedTeachers(teacherList);
+      saveCache(activeCreds, classList, roomList, teacherList);
+    }
+
+    load().catch(() => {
+      if (!cancelled) {
+        setExtendedClasses([]);
+        setExtendedRooms([]);
+        setExtendedTeachers([]);
+      }
     });
 
-    return () => controller.abort();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [creds?.school, creds?.user, creds?.pass]);
+    return () => {
+      cancelled = true;
+    };
+  }, [creds?.school, creds?.user]);
 
   return { extendedClasses, extendedRooms, extendedTeachers };
 }

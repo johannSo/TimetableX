@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { LogOut, Search, Users, MapPin, User, Star } from 'lucide-react';
 import { Favorite, FilterMode } from '@/lib/types';
+import { Button } from './button';
 
 interface SelectionMenuProps {
   filterMode: FilterMode;
@@ -62,7 +63,7 @@ export default function SelectionMenu({
 
       <div className="px-5 py-4 sm:px-6 sm:py-5 space-y-4">
         <div className="flex flex-row items-stretch gap-3 flex-nowrap">
-          <button
+          <Button
             onClick={onOpenPalette}
             aria-label="Klasse, Raum oder Lehrer suchen"
             className="search-trigger flex-1 min-w-0 active:scale-[0.99]"
@@ -91,13 +92,13 @@ export default function SelectionMenu({
               <kbd className="hidden sm:flex kbd">⌘K</kbd>
               <Search className="w-4 h-4" style={{ color: 'var(--color-text-muted)' }} />
             </div>
-          </button>
+          </Button>
 
-          <button
+          <Button
             onClick={onToggleFavorite}
             aria-label={isFavorite ? 'Aus Favoriten entfernen' : 'Zu Favoriten hinzufügen'}
             aria-pressed={isFavorite}
-            className="icon-btn"
+            variant="icon"
             style={{ flexShrink: 0 }}
           >
             <Star
@@ -105,16 +106,16 @@ export default function SelectionMenu({
               fill={isFavorite ? 'currentColor' : 'none'}
               strokeWidth={2}
             />
-          </button>
+          </Button>
 
-          <button
+          <Button
             onClick={onLogout}
             aria-label="Abmelden"
-            className="icon-btn icon-btn-danger"
+            variant="iconDanger"
             style={{ flexShrink: 0 }}
           >
             <LogOut className="w-5 h-5 block" strokeWidth={2} />
-          </button>
+          </Button>
         </div>
 
         {favorites.length > 0 && (
@@ -122,27 +123,28 @@ export default function SelectionMenu({
             {favorites.map((f, i) => {
               const isSelected = filterMode === f.mode && selectedValue === f.value;
               return (
-                <button
+                <Button
                   key={i}
                   onClick={() => onSelectFavorite(f.mode, f.value)}
-                  className={`chip active:scale-[0.97] ${isSelected ? 'chip-active' : ''}`}
+                  variant="chip"
+                  className={isSelected ? 'chip-active' : undefined}
                 >
                   <ModeIcon mode={f.mode} size={14} />
                   <span>{f.value}</span>
-                </button>
+                </Button>
               );
             })}
           </div>
         )}
 
         {onContinue && (
-          <button
+          <Button
             onClick={onContinue}
-            className="btn btn-primary w-full text-sm"
+            variant="primary" className="w-full text-sm"
             style={{ height: 52 }}
           >
             Weiter zum Stundenplan
-          </button>
+          </Button>
         )}
       </div>
     </section>

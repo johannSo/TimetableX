@@ -52,6 +52,8 @@ export interface Credentials {
   pass: string;
 }
 
+export type AuthIdentity = Pick<Credentials, 'school' | 'user'>;
+
 export interface SearchItem {
   id: string;
   name: string;

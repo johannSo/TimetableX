@@ -8,6 +8,7 @@ import {
   ShieldBan,
 } from 'lucide-react';
 import { ViewMode } from '@/lib/types';
+import { Button } from './button';
 
 interface TimetableHeaderProps {
   isLoading: boolean;
@@ -42,13 +43,13 @@ export default function TimetableHeader({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-5 py-4 sm:px-8 sm:py-5">
         <div className="flex items-center gap-2 min-w-0">
           {onBackToSelection && (
-            <button
+            <Button
               onClick={onBackToSelection}
               aria-label="Zur Auswahl"
-              className="icon-btn"
+              variant="icon"
             >
               <Home className="w-5 h-5" strokeWidth={2} />
-            </button>
+            </Button>
           )}
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[0.16em]" style={{ color: 'var(--color-text-muted)' }}>
@@ -74,56 +75,56 @@ export default function TimetableHeader({
         <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
           <div className="flex items-center gap-1 p-1 rounded-[var(--radius-md)] border"
                style={{ borderColor: 'var(--color-border)', background: 'var(--color-surface-raised)' }}>
-            <button
+            <Button
               onClick={() => onChangeViewMode('day')}
-              className={`btn text-sm ${viewMode === 'day' ? 'btn-primary' : 'btn-ghost'}`}
+              variant={viewMode === 'day' ? 'primary' : 'ghost'} className="text-sm"
               style={{ height: 48, padding: '0 0.9rem' }}
             >
               Tag
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => onChangeViewMode('week')}
-              className={`btn text-sm ${viewMode === 'week' ? 'btn-primary' : 'btn-ghost'}`}
+              variant={viewMode === 'week' ? 'primary' : 'ghost'} className="text-sm"
               style={{ height: 48, padding: '0 0.9rem' }}
             >
               Woche
-            </button>
+            </Button>
           </div>
 
           <div className="flex items-center gap-2">
-            <button
+            <Button
               onClick={() => onNavigate(-1)}
               aria-label={`Vorherige ${navigateLabel}`}
-              className="icon-btn"
+              variant="icon"
             >
               <ChevronLeft className="w-5 h-5" strokeWidth={2} />
-            </button>
+            </Button>
 
-          <button
+          <Button
             onClick={onToday}
             aria-label="Heute"
-            className={`btn ${isToday ? 'btn-primary' : 'btn-ghost'} text-sm`}
+            variant={isToday ? 'primary' : 'ghost'} className="text-sm"
             style={{ height: 48, padding: '0 0.9rem' }}
           >
             Heute
-          </button>
+          </Button>
 
-            <button
+            <Button
               onClick={() => onNavigate(1)}
               aria-label={`Nächste ${navigateLabel}`}
-              className="icon-btn"
+              variant="icon"
             >
               <ChevronRight className="w-5 h-5" strokeWidth={2} />
-            </button>
+            </Button>
           </div>
 
-          <button
+          <Button
             onClick={onOpenBlacklist}
             aria-label="Fächer verbergen"
-            className="icon-btn"
+            variant="icon"
           >
             <ShieldBan className="w-5 h-5 block" strokeWidth={2} />
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -3,30 +3,25 @@
 import { useState, useEffect } from 'react';
 import { track } from '@/lib/analytics';
 
-// Maps an entity (e.g., class name, room name) to a list of blacklisted subjects
 type BlacklistMap = Record<string, string[]>;
+
+const STORAGE_KEY = 'timetable_blacklist';
 
 export function useBlacklist(currentEntity: string) {
   const [blacklistMap, setBlacklistMap] = useState<BlacklistMap>({});
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const stored = localStorage.getItem('timetable_blacklist');
-        if (stored) {
-          setBlacklistMap(JSON.parse(stored));
-        }
-      } catch (e) {
-        console.error('Failed to load blacklist from local storage', e);
-      }
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) setBlacklistMap(JSON.parse(stored));
+    } catch (e) {
+      console.error('Failed to load blacklist from local storage', e);
     }
   }, []);
 
   const saveBlacklist = (newMap: BlacklistMap) => {
     setBlacklistMap(newMap);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('timetable_blacklist', JSON.stringify(newMap));
-    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newMap));
   };
 
   const currentBlacklist = blacklistMap[currentEntity] || [];
@@ -45,13 +40,9 @@ export function useBlacklist(currentEntity: string) {
     track('blacklist_subject_toggled', { action: 'removed' });
     saveBlacklist({
       ...blacklistMap,
-      [currentEntity]: currentBlacklist.filter((s) => s !== subject),
+      [currentEntity]: currentBlacklist.filter(s => s !== subject),
     });
   };
 
-  return {
-    currentBlacklist,
-    addToBlacklist,
-    removeFromBlacklist,
-  };
+  return { currentBlacklist, addToBlacklist, removeFromBlacklist };
 }

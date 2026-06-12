@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Search, Users, MapPin, User, X } from 'lucide-react';
 import { SearchItem } from '@/lib/types';
+import { Button } from './button';
 
 interface CommandPaletteProps {
   isOpen: boolean;
@@ -141,14 +142,14 @@ export default function CommandPalette({ isOpen, onClose, onSelect, items }: Com
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          <button
+          <Button
             onClick={onClose}
             aria-label="Schließen"
-            className="icon-btn"
+            variant="icon"
             style={{ width: 44, height: 44 }}
           >
             <X className="w-3.5 h-3.5" strokeWidth={2.5} />
-          </button>
+          </Button>
         </div>
 
         {/* Results */}
@@ -177,7 +178,7 @@ export default function CommandPalette({ isOpen, onClose, onSelect, items }: Com
                   {group.items.map(item => {
                     const isSelected = item.originalIndex === selectedIndex;
                     return (
-                      <button
+                      <Button
                         key={`${item.type}-${item.id}`}
                         id={`palette-item-${item.originalIndex}`}
                         role="option"
@@ -217,7 +218,7 @@ export default function CommandPalette({ isOpen, onClose, onSelect, items }: Com
                             ↵ Auswählen
                           </span>
                         )}
-                      </button>
+                      </Button>
                     );
                   })}
                 </div>

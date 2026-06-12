@@ -1,23 +1,21 @@
 import { fetchStundenplan } from '@/lib/stundenplan';
+import { getAuthCredentials } from '@/lib/server/authSession';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 const RequestSchema = z.object({
-  school: z.string().min(1, 'Schulnummer fehlt.'),
-  user: z.string().min(1, 'Benutzername fehlt.'),
-  pass: z.string().min(1, 'Passwort fehlt.'),
   filterMode: z.enum(['class', 'room', 'teacher']),
   selectedValue: z.string().min(1, 'Auswahl fehlt.'),
 });
 
+const LOOKBACK_WEEKDAYS = 8;
+const FETCH_CONCURRENCY = 3;
+
 function getPastWeekdays(daysCount: number): string[] {
   const dates: string[] = [];
   const curr = new Date();
-  
-  // Starting from today, gather the past N weekdays
   while (dates.length < daysCount) {
     const dayOfWeek = curr.getDay();
-    // 0 = Sunday, 6 = Saturday
     if (dayOfWeek !== 0 && dayOfWeek !== 6) {
       const y = curr.getFullYear();
       const m = String(curr.getMonth() + 1).padStart(2, '0');
@@ -29,60 +27,75 @@ function getPastWeekdays(daysCount: number): string[] {
   return dates;
 }
 
+async function fetchInBatches<T>(
+  items: string[],
+  handler: (item: string) => Promise<T>
+): Promise<PromiseSettledResult<T>[]> {
+  const results: PromiseSettledResult<T>[] = [];
+
+  for (let i = 0; i < items.length; i += FETCH_CONCURRENCY) {
+    const batch = items.slice(i, i + FETCH_CONCURRENCY);
+    results.push(...(await Promise.allSettled(batch.map(handler))));
+  }
+
+  return results;
+}
+
 export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-    const result = RequestSchema.safeParse(body);
-    
-    if (!result.success) {
-      return NextResponse.json({ 
-        error: result.error.issues[0].message || 'Ungültige Anfrage.' 
-      }, { status: 400 });
+  const credentials = getAuthCredentials(request);
+  if (!credentials) {
+    return NextResponse.json({ error: 'Nicht angemeldet.' }, { status: 401 });
+  }
+
+  const body = await request.json();
+  const result = RequestSchema.safeParse(body);
+  if (!result.success) {
+    return NextResponse.json(
+      { error: result.error.issues[0]?.message || 'Ungültige Anfrage.' },
+      { status: 400 }
+    );
+  }
+
+  const { school, user, pass } = credentials;
+  const { filterMode, selectedValue } = result.data;
+  const dates = getPastWeekdays(LOOKBACK_WEEKDAYS);
+  const settled = await fetchInBatches(dates, dateStr =>
+    fetchStundenplan(school, user, pass, dateStr)
+  );
+
+  const subjectSet = new Set<string>();
+  let authError: Error | null = null;
+  let successfulDays = 0;
+
+  for (const item of settled) {
+    if (item.status === 'rejected') {
+      if (item.reason?.message?.includes('Ungültig')) authError = item.reason;
+      continue;
     }
 
-    const { school, user, pass, filterMode, selectedValue } = result.data;
-    
-    // Fetch last 15 weekdays (3 weeks)
-    const dates = getPastWeekdays(15);
-    
-    // Fetch all in parallel. fetchStundenplan might throw 401 or network errors.
-    const settled = await Promise.allSettled(
-      dates.map(dateStr => fetchStundenplan(school, user, pass, dateStr))
-    );
+    successfulDays += 1;
+    item.value.entries.forEach(entry => {
+      const matches =
+        (filterMode === 'class' && entry.class === selectedValue) ||
+        (filterMode === 'room' && entry.room === selectedValue) ||
+        (filterMode === 'teacher' && entry.teacher === selectedValue);
 
-    const subjectSet = new Set<string>();
-    let authError = false;
-
-    settled.forEach(res => {
-      if (res.status === 'fulfilled') {
-        res.value.entries.forEach(e => {
-          let isMatch = false;
-          if (filterMode === 'class') isMatch = e.class === selectedValue;
-          else if (filterMode === 'room') isMatch = e.room === selectedValue;
-          else if (filterMode === 'teacher') isMatch = e.teacher === selectedValue;
-          
-          if (isMatch && e.subject && e.subject !== '---') {
-            subjectSet.add(e.subject);
-          }
-        });
-      } else if (res.reason && res.reason.message && res.reason.message.includes('Ungültig')) {
-        authError = true;
+      if (matches && entry.subject && entry.subject !== '---') {
+        subjectSet.add(entry.subject);
       }
     });
-
-    if (subjectSet.size === 0 && authError) {
-       return NextResponse.json({ 
-         error: 'Ungültiger Benutzername oder Passwort.' 
-       }, { status: 401 });
-    }
-
-    return NextResponse.json({
-      subjects: Array.from(subjectSet).sort()
-    });
-  } catch (e: any) {
-    console.error('API Error (Subjects):', e);
-    return NextResponse.json({ 
-      error: e.message || 'Interner Serverfehler beim Laden der Fächer.' 
-    }, { status: 500 });
   }
+
+  if (authError) {
+    return NextResponse.json({ error: authError.message }, { status: 401 });
+  }
+
+  if (successfulDays === 0) {
+    return NextResponse.json(
+      { error: 'Fächer konnten nicht geladen werden.' },
+      { status: 502 }
+    );
+  }
+
+  return NextResponse.json({ subjects: Array.from(subjectSet).sort() });
 }

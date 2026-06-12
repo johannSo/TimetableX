@@ -37,13 +37,18 @@ export default function RootLayout({
         </div>
         <script
           dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js');
-                });
-              }
-            `,
+          __html: `
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.getRegistrations()
+                  .then(function(registrations) {
+                    registrations.forEach(function(registration) {
+                      registration.unregister();
+                    });
+                  });
+              });
+            }
+          `,
           }}
         />
       </body>

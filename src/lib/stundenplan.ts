@@ -224,28 +224,21 @@ export async function fetchWeekStundenplan(
     weekDateStrs.map(date => fetchDayTimetable(school, user, pass, date))
   );
 
-  const days: TimetableDayData[] = settled.map((result, index) => {
-    const date = weekDates[index];
-    const dateStr = weekDateStrs[index];
+  const failures = settled.filter(
+    (result): result is PromiseRejectedResult => result.status === 'rejected'
+  );
+  const authFailure = failures.find(result => result.reason?.message?.includes('Ungültig'));
+  if (authFailure) throw authFailure.reason;
 
-    if (result.status === 'fulfilled') {
-      return result.value;
-    }
+  if (failures.length > 0) {
+    const firstFailure = failures[0].reason;
+    const message = firstFailure instanceof Error ? firstFailure.message : String(firstFailure);
+    throw new Error(message || 'Stundenplanwoche konnte nicht vollständig geladen werden.');
+  }
 
-    if (result.reason?.message?.includes('Ungültig')) {
-      throw result.reason;
-    }
-
-    return {
-      title: 'Stundenplan',
-      date: getFallbackDate(dateStr),
-      entries: [],
-      availableClasses: [],
-      availableRooms: [],
-      availableTeachers: [],
-      currentDateStr: dateStr,
-      isWeekend: date.getDay() === 0 || date.getDay() === 6,
-    };
+  const days: TimetableDayData[] = settled.map(result => {
+    if (result.status === 'rejected') throw result.reason;
+    return result.value;
   });
 
   const availableClasses = new Set<string>();
